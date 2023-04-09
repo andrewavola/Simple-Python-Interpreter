@@ -1,0 +1,3 @@
+/Users/kooshesh/Courses/2023spring/cs460/APythonInterpreter/cmake-build-debug/CMakeFiles/APythonInterpreter.dir
+/Users/kooshesh/Courses/2023spring/cs460/APythonInterpreter/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/kooshesh/Courses/2023spring/cs460/APythonInterpreter/cmake-build-debug/CMakeFiles/rebuild_cache.dir

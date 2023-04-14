@@ -44,20 +44,98 @@ Statements *Parser::statements() {
         tok = tokenizer.getToken();
     }
     while (tok.isName() && tok.isKeyword()){
-        
+        if(tok.getName() == "print")
+        {
+            tokenizer.ungetToken();
+            PrintStatement *printStmt = printStatement();
+            stmts->addStatement(printStmt);
+            tok = tokenizer.getToken();
+        }
+        else if(tok.getName() == "for")
+        {
+            //tokenizer.ungetToken();
+            ForStatement *forStmt = forStatement();
+            stmts->addStatement(forStmt);
+            tok = tokenizer.getToken();
+        }   
+        else
+        {  
+            std::cout << "Error recognizing keyword...";
+            exit(1);
+        }
     }
     tokenizer.ungetToken();
     return stmts;
 }
 
-Print *Parser::printStatement(){
-    // Parses the following grammar rule
-    //
-    // <print-statement> -> print <id>
 
+PrintStatement *Parser::printStatement(){
+    //Parses the following grammar rule
+    //
+    //<print-statement> -> print <id>
+    Token varName = tokenizer.getToken();
+    if(!varName.isName() || !varName.isKeyword())
+        die("Parser::printStatement", "Expected a name token, instead got", varName);
+
+    ExprNode *rightHandSideExpr = primary();
+    return new PrintStatement(rightHandSideExpr);
+    
 
 }
 
+ForStatement *Parser::forStatement(){
+        
+    Token openParen = tokenizer.getToken();
+    std::vector<Statements*> forLoopStatements;
+    AssignmentStatement *lhs;
+    AssignmentStatement *rhs; 
+    ExprNode *mid;
+
+    if(openParen.isOpenParen())
+        lhs = assignStatement();
+    else
+        die("ForStatement ->", "Expected open-parenthesis, instead got", openParen);
+    
+    // We found our initializing assignment statement of our for loop successfuly, and
+    // now need to determine if proper syntax follows our first assignment statement. If it 
+    // does, then we begin to find our rel-expression.
+    Token isFirstSemi = tokenizer.getToken();
+    if(isFirstSemi.isSemiColon())
+        mid = relExpr();
+    else
+        die("ForStatement ->", "Expected semi-colon, instead got", isFirstSemi);
+
+    Token isSecondSemi = tokenizer.getToken();
+    if(isSecondSemi.isSemiColon())
+        rhs = assignStatement();
+    else
+        die("ForStatement ->", "Expected semi-colon, instead got", isSecondSemi);
+
+    Token isClosedParenth = tokenizer.getToken();
+    if(isClosedParenth.isCloseParen())
+    {
+        Token isOpenBrack = tokenizer.getToken();
+        Token isClosedBrack;
+        if(isOpenBrack.isOpenBrack())
+        {
+            isClosedBrack = tokenizer.getToken();
+            while(!isClosedBrack.isClosedBrack())
+            {
+                tokenizer.ungetToken();
+                Statements *statementsPtr = statements();
+                forLoopStatements.push_back(statementsPtr);
+                isClosedBrack = tokenizer.getToken();
+            }
+        }
+        else    
+            die("ForStatement ->", "Expected closed-bracket, instead got", isClosedBrack);
+    }
+    else
+        die("ForStatement ->", "Expected closed parenthesis, instead got", isClosedParenth);
+    
+    return new ForStatement(lhs, mid, rhs, forLoopStatements);
+
+ }
 
 AssignmentStatement *Parser::assignStatement() {
     // Parses the following grammar rule

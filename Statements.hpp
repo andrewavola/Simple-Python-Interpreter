@@ -62,17 +62,49 @@ private:
     ExprNode *_rhsExpression;
 };
 
-class Print : public Statement {
+// PrintStatement represents printing the value of whichever ID is to the right
+// of the "print" keyword by reaching into the symbol table map and grabbing the
+// current mapped value.
+class PrintStatement : public Statement {
 public:
     //constructors
-    Print();
-    Print(std::string rhs);
+    PrintStatement();
+    PrintStatement(ExprNode *rhs);
 
-    std::string &rhsID();
+    ExprNode *&rhsExpression();
+    virtual void evaluate(SymTab &symTab);
     virtual void print();
 
 private:
-    std::string _rhsID;
+    ExprNode *_rhsExpression;
+    //std::string _rhsID;
 };
 
+//ForStatement
+class ForStatement : public Statement{
+public: 
+    //constructors
+    ForStatement();
+    ForStatement(AssignmentStatement *leftOfSemiColon, ExprNode *mid, AssignmentStatement *rightOfSemiColon, std::vector<Statements *> stmtVec);
+    
+    //Function
+    void addToForLoopStatements(Statements *stmts);
+
+    //Getters
+    AssignmentStatement *&left();
+    AssignmentStatement *&right();
+    ExprNode *&mid();
+    std::vector<Statements *> returnVec();
+
+    //Evaluations
+    virtual void evaluate(SymTab &symTab);
+    virtual void print();
+
+private:
+    AssignmentStatement *_losc;
+    ExprNode *_middle;
+    AssignmentStatement *_rosc;
+    std::vector<Statements *> _forLoopStatements;
+
+};
 #endif //APYTHONINTERPRETER_STATEMENTS_HPP

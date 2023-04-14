@@ -134,6 +134,8 @@ Token Tokenizer::getToken() {
             token.symbol(c);
         }
     }
+    else if( c == '{' || c == '}')
+        token.symbol(c);
     else if( c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
         token.symbol(c);
     else if( c == ';' )

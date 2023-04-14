@@ -23,7 +23,8 @@ public:
     Statements *statements();
 
     AssignmentStatement *assignStatement();
-    Print   *printStatement();
+    PrintStatement  *printStatement();
+    ForStatement *forStatement();
 
     ExprNode *expr();
     ExprNode *term();

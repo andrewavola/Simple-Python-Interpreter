@@ -20,6 +20,10 @@ public:
     bool isOpenParen() const  { return _symbol == '('; }
     bool isCloseParen() const { return _symbol == ')'; }
 
+    //for For loop statement
+    bool isOpenBrack() const { return _symbol == '{';}
+    bool isClosedBrack() const { return _symbol == '}';}
+
     void symbol(char c) { _symbol = c; }
     char symbol() { return _symbol; }
 

@@ -36,8 +36,38 @@ Statements *Parser::statements() {
     Statements *stmts = new Statements();
     Token tok = tokenizer.getToken();
 
+    while (tok.isName())
+    {
+        if (tok.isKeyword() && tok.getName() == "print" )
+        {
+            tokenizer.ungetToken();
+            PrintStatement *printStmt = printStatement();
+            stmts->addStatement(printStmt);
+            tok = tokenizer.getToken();
+        }
+        else if(tok.isKeyword() && tok.getName() == "for" )
+        {
+            ForStatement *forStmt = forStatement();
+            stmts->addStatement(forStmt);
+            tok = tokenizer.getToken();
+        }
+        else if(!tok.isKeyword())
+        {
+            tokenizer.ungetToken();
+            AssignmentStatement *assignStmt = assignStatement();
+            stmts->addStatement(assignStmt);
+            tok = tokenizer.getToken();
+        }
+        else
+        {
+            std::cout << "Error recognizing keyword or ID...";
+            exit(1);
+        }
+    }
+    /*
     //isName returns a boolean**
     while (tok.isName() && !tok.isKeyword()) {
+        //tok.print(); std::cout << "\n";
         tokenizer.ungetToken();
         AssignmentStatement *assignStmt = assignStatement();
         stmts->addStatement(assignStmt);
@@ -63,7 +93,8 @@ Statements *Parser::statements() {
             std::cout << "Error recognizing keyword...";
             exit(1);
         }
-    }
+        */
+    
     tokenizer.ungetToken();
     return stmts;
 }
@@ -172,7 +203,6 @@ ExprNode *Parser::relExpr(){
     Token tok = tokenizer.getToken();
     while(tok.isEqualOperator() || tok.isNotEqualOperator())
     {
-        std::cout << "i'm in equal town";
         InfixExprNode *p = new InfixExprNode(tok);
         p->left() = left;
         p->right() = relTerm();

@@ -146,6 +146,7 @@ Token Tokenizer::getToken() {
         // put c back into the stream so we can read the entire name in a function.
         inStream.putback(c);
         token.setName( readName() );
+        //std::cout << token.getName() << std::endl;
         if(token.isKeyword())
             token.setIsKeyword();
     } else {

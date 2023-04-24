@@ -26,7 +26,8 @@ public:
     PrintStatement  *printStatement();
     ForStatement *forStatement();
 
-    ExprNode *expr();
+    void continueThroughEOL();
+    ExprNode *arith_expr();
     ExprNode *term();
     ExprNode *primary();
 

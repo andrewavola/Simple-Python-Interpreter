@@ -19,8 +19,10 @@ void Token::print() const {
     else if( isSubtractionOperator() )  std::cout << " - " ;
     else if( isModuloOperator() )  std::cout << " % " ;
     else if( isDivisionOperator() )  std::cout << " / " ;
-    else if( isName() )  std::cout << getName();
-    else if( isWholeNumber() ) std::cout << getWholeNumber();
+    else if( isNotEqualSecondary() ) std::cout << " <> ";
+    else if( isExtendedOpFloor() ) std::cout << " // ";
+    else if( isName() )  std::cout <<  getName();
+    else if( isWholeNumber() ) std::cout <<  getWholeNumber();
     else if ( isEqualOperator() ) std::cout << " == ";
     else if ( isNotEqualOperator() ) std::cout << " != ";
     else if ( isGreaterThanOperator() ) std::cout << " > ";

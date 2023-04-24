@@ -5,7 +5,8 @@
 
 #include<iostream>
 #include "ExprNode.hpp"
-
+#include <cmath>
+#include <string.h>
 // ExprNode
 ExprNode::ExprNode(Token token): _token{token} {}
 
@@ -18,43 +19,440 @@ ExprNode *&InfixExprNode::left() { return _left; }
 
 ExprNode *&InfixExprNode::right() { return _right; }
 
-int InfixExprNode::evaluate(SymTab &symTab) {
+TypeDescriptor* InfixExprNode::evaluate(SymTab &symTab) {
+    bool bothInt = false; // int
+    bool intAndDouble = false; // double
+    bool bothDouble = false; // double
+    bool bothStrings = false;
+    bool boolVals = false;
+    bool lhsDouble = false;
+    bool rhsDouble = false;
+    
     // Evaluates an infix expression using a post-order traversal of the expression tree.
-    int lValue = left()->evaluate(symTab);
-    int rValue = right()->evaluate(symTab);
+    TypeDescriptor *lValue = left()->evaluate(symTab);
+    TypeDescriptor *rValue = right()->evaluate(symTab);
+
     if(debug)
         std::cout << "InfixExprNode::evaluate: " << lValue << " " <<
             token().symbol() << " " << rValue << std::endl;
-    if( token().isAdditionOperator() )
-        return lValue + rValue;
+
+    //Handles what values we have in our downcasted TypeDescriptors
+    if(lValue->getType() == TypeDescriptor::INTEGER && rValue->getType() == TypeDescriptor::INTEGER)
+    {
+        bothInt = true;
+    }
+        
+    else if(lValue->getType() == TypeDescriptor::INTEGER && rValue->getType() == TypeDescriptor::DOUBLE)
+    {
+        intAndDouble = true;
+        rhsDouble = true;
+    }
+    else if(lValue->getType() == TypeDescriptor::DOUBLE && rValue->getType() == TypeDescriptor::INTEGER)
+    {
+        intAndDouble = true;
+        lhsDouble = true;
+    }
+    else if(lValue->getType() == TypeDescriptor::DOUBLE && rValue->getType() == TypeDescriptor::DOUBLE)
+        bothDouble = true;
+    else if(lValue->getType() == TypeDescriptor::STRING && rValue->getType() == TypeDescriptor::STRING)
+        bothStrings = true;
+    else if(lValue->getType() == TypeDescriptor::BOOL && rValue->getType() == TypeDescriptor::BOOL)
+        boolVals = true;
+    else
+    {
+        std::cout << "Incompatible types for operations\n";
+        exit(1);
+    }
+        
+
+    //Operations
+
+    
+    //Addition
+    if(token().isAdditionOperator())
+    {
+        if(bothInt)
+        {
+            
+            int returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                + dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new IntegerTypeDescriptor(returnVal, TypeDescriptor::INTEGER);
+        }
+        else if(bothDouble)
+        {
+            double returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                + dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new DoubleTypeDescriptor(returnVal, TypeDescriptor::DOUBLE);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                double returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    + dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new DoubleTypeDescriptor(returnVal, TypeDescriptor::DOUBLE);
+            }
+            else{
+                double returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    + dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new DoubleTypeDescriptor(returnVal, TypeDescriptor::DOUBLE);
+            }
+        }
+        else if(bothStrings)
+        {
+            std::string concatString = dynamic_cast<StringTypeDescriptor *>(lValue)->returnVal() + dynamic_cast<StringTypeDescriptor *>(rValue)->returnVal();
+            return new StringTypeDescriptor(concatString, TypeDescriptor::STRING);
+        }
+        else{
+            std::cout << "Error performing addition operator with inputed values\n";
+            exit(1);
+        }
+                 
+    }
+    //Subtraction
     else if(token().isSubtractionOperator())
-        return lValue - rValue;
+    {
+        if(bothInt)
+        {
+            int returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                - dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new IntegerTypeDescriptor(returnVal, TypeDescriptor::INTEGER);
+        }
+        else if(bothDouble)
+        {
+            double returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                - dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new DoubleTypeDescriptor(returnVal, TypeDescriptor::DOUBLE);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                double returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    - dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new DoubleTypeDescriptor(returnVal, TypeDescriptor::DOUBLE);
+            }
+            else{
+                double returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    - dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new DoubleTypeDescriptor(returnVal, TypeDescriptor::DOUBLE);
+            }
+        }
+        else{
+            std::cout << "Error performing Addition operator with inputed values\n";
+            exit(1);
+        }
+
+    }
+    //Multiplication
     else if(token().isMultiplicationOperator())
-        return lValue * rValue;
+    {
+        if(bothInt)
+        {
+            int returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                * dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new IntegerTypeDescriptor(returnVal, TypeDescriptor::INTEGER);
+        }
+        else if(bothDouble)
+        {
+            double returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                * dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new DoubleTypeDescriptor(returnVal, TypeDescriptor::DOUBLE);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                double returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    * dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new DoubleTypeDescriptor(returnVal, TypeDescriptor::DOUBLE);
+            }
+            else{
+                double returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    * dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new DoubleTypeDescriptor(returnVal, TypeDescriptor::DOUBLE);
+            }
+        }
+        else{
+            std::cout << "Error performing Multiplication operator with inputed values\n";
+            exit(1);
+        }
+    }
+    //Division
     else if(token().isDivisionOperator())
-        return lValue / rValue; // division by zero?
-    else if( token().isModuloOperator() )
-        return lValue % rValue;
-    //Step 4:
-    else if( token().isEqualOperator())
-        return lValue == rValue;
-    else if( token().isNotEqualOperator())
-        return lValue != rValue;
-    else if( token().isGreaterThanOperator())
-        return lValue > rValue;
-    else if( token().isGreaterThanOrEqualToOperator())
-        return lValue >= rValue;
-    else if(  token().isLessThanOperator()){
-        return lValue < rValue;
-    }  
-    else if( token().isLessThanOrEqualToOperator())
-        return lValue <= rValue;
+    {
+        if(bothInt)
+        {
+            int returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                / dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new IntegerTypeDescriptor(returnVal, TypeDescriptor::INTEGER);
+        }
+        else if(bothDouble)
+        {
+            double returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                / dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new DoubleTypeDescriptor(returnVal, TypeDescriptor::DOUBLE);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                double returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    / dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new DoubleTypeDescriptor(returnVal, TypeDescriptor::DOUBLE);
+            }
+            else{
+                double returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    / dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new DoubleTypeDescriptor(returnVal, TypeDescriptor::DOUBLE);
+            }
+        }
+        else{
+            std::cout << "Error performing Division operator with inputed values\n";
+            exit(1);
+        }
+    }
+    //Only works with INTS
+    else if(token().isModuloOperator())
+    {
+        if(bothInt)
+        {
+            int returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                % dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new IntegerTypeDescriptor(returnVal, TypeDescriptor::INTEGER);
+        }
+        else{
+            std::cout << "Error performing Modulo operator with inputed values\n";
+            exit(1);
+        }
+    }
+
+    //Is Equal
+    else if(token().isEqualOperator())
+    {
+        if(bothInt)
+        {
+            bool returnVal = (dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                == dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(bothDouble)
+        {
+            bool returnVal = (dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                == dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                bool returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    == dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            else{
+                bool returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    == dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+        }
+        else if(bothStrings)
+        {
+            int retVal = strcmp(dynamic_cast<StringTypeDescriptor *>(lValue)->returnVal().c_str(), dynamic_cast<StringTypeDescriptor *>(rValue)->returnVal().c_str());
+            if(retVal == 0)
+                return new BoolTypeDescriptor(true, TypeDescriptor::BOOL);
+            else
+                return new BoolTypeDescriptor(false, TypeDescriptor::BOOL);
+        }
+        else{
+            std::cout << "Error performing IsEqual operator with inputed values\n";
+            exit(1);
+        }
+    }
+    else if(token().isNotEqualOperator() || token().isNotEqualSecondary())
+    {
+        if(bothInt)
+        {
+            bool returnVal = (dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                != dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(bothDouble)
+        {
+            bool returnVal = (dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                != dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                bool returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    != dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            else{
+                bool returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    != dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+        }
+        else if(bothStrings)
+        {
+            int retVal = strcmp(dynamic_cast<StringTypeDescriptor *>(lValue)->returnVal().c_str(), dynamic_cast<StringTypeDescriptor *>(rValue)->returnVal().c_str());
+            if(retVal == 0)
+                return new BoolTypeDescriptor(false, TypeDescriptor::BOOL);
+            else
+                return new BoolTypeDescriptor(true, TypeDescriptor::BOOL);
+        }
+        else{
+            std::cout << "Error performing IsNotEqual operator with inputed values\n";
+            exit(1);
+        }
+    }
+
+    else if(token().isGreaterThanOperator())
+    {
+        if(bothInt)
+        {
+            bool returnVal = (dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                > dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(bothDouble)
+        {
+            bool returnVal = (dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                > dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                bool returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    > dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            else{
+                bool returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    > dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+        }
+          else{
+            std::cout << "Error performing GreaterThan operator with inputed values\n";
+            exit(1);
+        }
+    }
+    else if(token().isLessThanOperator())
+    {
+        if(bothInt)
+        {
+            bool returnVal = (dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                < dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(bothDouble)
+        {
+            bool returnVal = (dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                < dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                bool returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    < dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            else{
+                bool returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    < dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+        }
+          else{
+            std::cout << "Error performing LessThan operator with inputed values\n";
+            exit(1);
+        }
+    }
+    else if(token().isGreaterThanOrEqualToOperator())
+    {
+        if(bothInt)
+        {
+            bool returnVal = (dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                >= dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(bothDouble)
+        {
+            bool returnVal = (dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                >= dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                bool returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    >= dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            else{
+                bool returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    >= dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+        }
+          else{
+            std::cout << "Error performing GreaterThanOrEqualTo operator with inputed values\n";
+            exit(1);
+        }
+    }
+    else if(token().isLessThanOrEqualToOperator())
+    {
+        if(bothInt)
+        {
+            bool returnVal = (dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                <= dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(bothDouble)
+        {
+            bool returnVal = (dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                <= dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                bool returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    <= dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            else{
+                bool returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    <= dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+        }
+          else{
+            std::cout << "Error performing LessThanEqualTo operator with inputed values\n";
+            exit(1);
+        }
+    }
+    //Error check
     else {
         std::cout << "InfixExprNode::evaluate: don't know how to evaluate this operator\n";
         token().print();
         std::cout << std::endl;
         exit(2);
     }
+
+
+    
 }
 
 void InfixExprNode::print() {
@@ -70,10 +468,13 @@ void WholeNumber::print() {
     token().print();
 }
 
-int WholeNumber::evaluate(SymTab &symTab) {
+IntegerTypeDescriptor* WholeNumber::evaluate(SymTab &symTab) {
     if(debug)
         std::cout << "WholeNumber::evaluate: returning " << token().getWholeNumber() << std::endl;
-    return token().getWholeNumber();
+    
+    return new IntegerTypeDescriptor(token().getWholeNumber(), TypeDescriptor::INTEGER);
+    // return dynamic_cast<IntegerTypeDescriptor*>(symTab.getValueFor(token().getName()));
+    //return token().getWholeNumber();
 }
 
 // Variable
@@ -84,13 +485,15 @@ void Variable::print() {
     token().print();
 }
 
-int Variable::evaluate(SymTab &symTab) {
+TypeDescriptor* Variable::evaluate(SymTab &symTab) {
     if( ! symTab.isDefined(token().getName())) {
         std::cout << "Use of undefined variable, " << token().getName() << std::endl;
         exit(1);
     }
     if(debug)
         std::cout << "Variable::evaluate: returning " << symTab.getValueFor(token().getName()) << std::endl;
+
+     
     return symTab.getValueFor(token().getName());
 }
 

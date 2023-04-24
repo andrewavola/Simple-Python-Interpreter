@@ -56,10 +56,21 @@ std::string Tokenizer::readRelationalOperator() {
     char c;
    
     inStream.get(c);
-    relationOp += c;
-    inStream.get(c);
-    if(c == '=' && relationOp.size() == 1)
-         relationOp += c;
+
+    if (c = '<')
+    {
+        relationOp += c;
+        inStream.get(c);
+        if((c == '=' or c == '>') && relationOp.size() == 1)
+            relationOp += c;
+    }
+    else
+    {
+        relationOp += c;
+        inStream.get(c);
+        if(c == '=' && relationOp.size() == 1)
+            relationOp += c;
+    }
        
     inStream.get(c);
     if(inStream.good())  // In the loop, we have read one char too many.
@@ -82,11 +93,12 @@ Token Tokenizer::getToken() {
 
     char c;
     
-    //while( inStream.get(c) && isspace(c) && c != '\n' )  // Skip spaces but not new-line chars.
-        //;
-    
-    while( inStream.get(c) && isspace(c) )  // Skip spaces including the new-line chars.
+    //Part of step 1 of phase 2
+    while( inStream.get(c) && isspace(c) && c != '\n' )  // Skip spaces but not new-line chars.
         ;
+    
+    //while( inStream.get(c) && isspace(c) )  // Skip spaces including the new-line chars.
+        //;
     
 
     if(inStream.bad()) {
@@ -136,8 +148,21 @@ Token Tokenizer::getToken() {
     }
     else if( c == '{' || c == '}')
         token.symbol(c);
+        
     else if( c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
-        token.symbol(c);
+    {
+        std::string extended;
+        if(c == '/' && inStream.peek() == '/')
+        {
+            extended += c;
+            inStream.get(c);
+            extended += c;
+            token.setExtendedOp(extended);
+        }
+        else
+            token.symbol(c);
+    }
+        
     else if( c == ';' )
         token.symbol(c);
     else if( c == '(' || c == ')')
@@ -153,6 +178,8 @@ Token Tokenizer::getToken() {
         std::cout << "Unknown character in input. ->" << c << "<-" << std::endl;
         exit(1);
     }
+    // token.print();
+    // std::cout << ", ";
     // Vector of all tokens from the file we are reading
     _tokens.push_back(token);
     return lastToken = token;

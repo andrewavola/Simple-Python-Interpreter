@@ -17,7 +17,7 @@ public:
     Token getToken();
     void ungetToken();
     void printProcessedTokens();
-    bool reachedRelationalOperator(char character) {if( (character == '>') || (character == '<') || (character == '!') ) {return true;} return false; };
+    bool reachedRelationalOperator(char character) {if( (character == '>') || (character == '<') || (character == '!')) {return true;} return false; };
 
 private:
     Token lastToken;

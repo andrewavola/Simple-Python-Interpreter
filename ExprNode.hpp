@@ -21,7 +21,7 @@ public:
     explicit ExprNode(Token token);
     Token token();
     virtual void print() = 0;
-    virtual int evaluate(SymTab &symTab) = 0;
+    virtual TypeDescriptor* evaluate(SymTab &symTab) = 0;
 
 private:
     Token _token;
@@ -40,7 +40,7 @@ public:
     ExprNode *&left();
     ExprNode *&right();
     void print () override;
-    int evaluate(SymTab &symTab) override;
+    TypeDescriptor* evaluate(SymTab &symTab) override;
 
 private:
     ExprNode *_left, *_right;
@@ -54,7 +54,7 @@ class WholeNumber: public ExprNode {
 public:
     explicit WholeNumber(Token token);
     void print() override;
-    int evaluate(SymTab &symTab) override;
+    IntegerTypeDescriptor* evaluate(SymTab &symTab) override;
 };
 
 // Varialbe is a leaf-node in an expression tree. It corresponds to
@@ -65,7 +65,7 @@ class Variable: public ExprNode {
 public:
     explicit Variable(Token token);
     void print() override;
-    int evaluate(SymTab &symTab) override;
+    TypeDescriptor* evaluate(SymTab &symTab) override;
 };
 
 

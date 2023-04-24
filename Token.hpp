@@ -41,6 +41,10 @@ public:
                isModuloOperator() ||
                isDivisionOperator();
     }
+
+    //Detect new line characters to terminate assign and print statements
+    //bool isNewLineChar() const {return _symbol == '\n';}
+
     bool isName() const                   { return _name.length() > 0; }
     std::string getName() const                  { return _name; }
     void setName(std::string n) { _name = n; }
@@ -61,13 +65,18 @@ public:
     bool isGreaterThanOrEqualToOperator() const { return _relationalOperator == ">=";}
     bool isLessThanOperator() const { return _relationalOperator == "<";}
     bool isLessThanOrEqualToOperator() const { return _relationalOperator == "<=";}
-
+    bool isNotEqualSecondary() const {return _relationalOperator == "<>";}
+    bool isExtendedOpFloor() const {return _extendedOp == "//";}
     bool &isRelationalOperator() { return _isRelationOperator; }
     bool isRelationalOperator() const { return _isRelationOperator; }
     std::string getRelationalOperator() const {return _relationalOperator; }
     void setRelationalOperator(std::string str) {
         _relationalOperator = str;
         isRelationalOperator() = true;
+    }
+
+    void setExtendedOp(std::string str){
+        _extendedOp = str;
     }
     
     //Step 5:
@@ -84,6 +93,7 @@ private:
 
     bool _isRelationOperator;
     std::string _relationalOperator;
+    std::string _extendedOp;
 };
 
 

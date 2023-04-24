@@ -4,6 +4,7 @@
 
 #include "Statements.hpp"
 
+
 // Statement
 Statement::Statement() {}
 
@@ -33,7 +34,7 @@ AssignmentStatement::AssignmentStatement(std::string lhsVar, ExprNode *rhsExpr):
         _lhsVariable{lhsVar}, _rhsExpression{rhsExpr} {}
 
 void AssignmentStatement::evaluate(SymTab &symTab) {
-    int rhs = rhsExpression()->evaluate(symTab);
+    TypeDescriptor *rhs = rhsExpression()->evaluate(symTab);
     symTab.setValueFor(lhsVariable(), rhs);
 }
 
@@ -69,11 +70,28 @@ ExprNode *&PrintStatement::rhsExpression(){
 //Print the return value of whatever is being returned from the  symbol table map.
 //In this case, we are getting the second element of the map which is an int.
 void PrintStatement::evaluate(SymTab &symTab){
-    std::cout << symTab.getValueFor(rhsExpression()->token().getName()) << std::endl;
+    TypeDescriptor *temp = symTab.getValueFor(rhsExpression()->token().getName());
+
+    if(temp->getType() == TypeDescriptor::INTEGER)
+        std::cout << dynamic_cast<IntegerTypeDescriptor *>(temp)->returnVal();
+    else if(temp->getType() == TypeDescriptor::BOOL)
+        std::cout << dynamic_cast<BoolTypeDescriptor *>(temp)->returnVal();
+    else if(temp->getType() == TypeDescriptor::DOUBLE)
+        std::cout << dynamic_cast<DoubleTypeDescriptor *>(temp)->returnVal();
+    else if(temp->getType() == TypeDescriptor::STRING)
+        std::cout << dynamic_cast<StringTypeDescriptor *>(temp)->returnVal();
+    else{
+        std::cout << "Error printing the variable's value\n";
+        exit(1);
+    }
+    
 }
 
 //Don't need to implement this
 void PrintStatement::print(){
+    std::cout << "print ";
+    rhsExpression()->print();
+    std::cout << std::endl;
 }
 
 // ForLoopStatement
@@ -121,7 +139,7 @@ void ForStatement::evaluate(SymTab &symTab)
     int index = 0;
     unsigned int vecSize = returnVec().size();
     left()->evaluate(symTab);
-    while(mid()->evaluate(symTab) == 1)
+    while(dynamic_cast<BoolTypeDescriptor *>(mid()->evaluate(symTab))->returnVal())
     {
         while(index < vecSize)
         {

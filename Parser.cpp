@@ -95,19 +95,51 @@ PrintStatement *Parser::printStatement(){
     //Parses the following grammar rule
     //
     //<print-statement> -> print <id>
+    std::vector<ExprNode *> expressions;
+    ExprNode *temp;
     Token varName = tokenizer.getToken();
     if(!varName.isName() || !varName.isKeyword())
         die("Parser::printStatement", "Expected a name token, instead got", varName);
+    Token firstParenth = tokenizer.getToken();
+    if(!firstParenth.isOpenParen())
+        die("Parser::printStatement", "Expected a open-parenthesis, instead got", firstParenth);
 
-    ExprNode *rightHandSideExpr = primary();
+    //ID
+    Token isComma;
+    //Get first expression in the print statement
+    ExprNode *firstExpr = relExpr();
 
+    //loop for more expressions that are comma delimited
+    isComma = tokenizer.getToken();
+    
+    if(isComma.isComma()){
+        expressions.push_back(firstExpr);
+        while(isComma.isComma()){
+            temp = relExpr();
+            expressions.push_back(temp);
+            isComma = tokenizer.getToken();
+        }
+        tokenizer.ungetToken();
+    }
+    else
+    {
+        expressions.push_back(firstExpr);
+        tokenizer.ungetToken();
+    }
+        
+    
+
+    Token closingParenth = tokenizer.getToken();
+    if(!closingParenth.isCloseParen())
+        die("Parser::printStatement", "Expected a closed-parenthesis, instead got", closingParenth);
+    //Check EOL
     Token tok = tokenizer.getToken();
     if(!tok.eol())
     {
        die("Parser::printStatement", "Expected a new-line, instead got", tok);
     }
 
-    return new PrintStatement(rightHandSideExpr);
+    return new PrintStatement(expressions);
     
 
 }
@@ -204,6 +236,7 @@ AssignmentStatement *Parser::assignStatement() {
     ExprNode *rightHandSideExpr = relExpr();
     
     Token tok = tokenizer.getToken();
+    
     if (!tok.eol())
     {
         die("Parser::assignStatement", "Expected a new-line instead got", tok);
@@ -331,6 +364,10 @@ ExprNode *Parser::primary() {
 
     if (tok.isWholeNumber() )
         return new WholeNumber(tok);
+    else if(tok.isDoubleNumber())
+        return new DoubleNumber(tok);
+    else if(tok.isString())
+        return new StringValue(tok);
     else if( tok.isName() )
         return new Variable(tok);
     else if (tok.isOpenParen()) {

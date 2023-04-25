@@ -29,6 +29,19 @@ std::string Tokenizer::readName() {
     return name;
 }
 
+std::string Tokenizer::readString(){
+    char c;
+    std::string temp = "";
+    while(inStream.get(c) && c != '\n' && c != '"'){
+        temp += c;
+    }
+    if(c == '\n' || c != '"'){
+        std::cout << "Ended with newline char or did not terminate with end quote\n";
+        exit(1);
+    }
+    return temp;
+}
+
 int Tokenizer::readInteger() {
     // This function is called when it is known that
     // the first character in input is a digit.
@@ -47,6 +60,17 @@ int Tokenizer::readInteger() {
     return intValue;
 }
 
+double Tokenizer::readDouble(int front, int behind) {
+    std::string tempString = "";
+    std::string frontPeriod = "";
+    std::string behindPeriod = "";
+    frontPeriod = std::to_string(front);
+    behindPeriod = std::to_string(behind);
+    tempString += frontPeriod;
+    tempString += ".";
+    tempString += behindPeriod;
+    return std::stod(tempString);
+}
 std::string Tokenizer::readRelationalOperator() {
     // This function is called when it is known that
     // the first character is a relational operator that is not ==
@@ -113,12 +137,23 @@ Token Tokenizer::getToken() {
         token.eof() = true;
     } else if( c == '\n' ) {  // will not ever be the case unless new-line characters are not supressed.
         token.eol() = true;
-    } else if( isdigit(c) ) { // a integer?
+    } else if( isdigit(c)) { // a integer?
         // put the digit back into the input stream so
         // we read the entire number in a function
         inStream.putback(c);
-        token.setWholeNumber( readInteger() );
-
+        int behindPeriod;
+        int frontPeriod = readInteger();
+        inStream.get(c);
+        if(c == '.'){
+            behindPeriod = readInteger();
+            token.setDoubleNumber(readDouble(frontPeriod, behindPeriod));
+        }
+        else{
+            token.setWholeNumber(frontPeriod);
+            inStream.putback(c);
+        }
+        
+    //comments
     } else if( reachedRelationalOperator(c)) {
         // put the relation operator back into the input stream so
         // we read the entire operator in a function
@@ -126,7 +161,18 @@ Token Tokenizer::getToken() {
         inStream.putback(c);
         token.setRelationalOperator( readRelationalOperator() );
     }
-    
+    //comment parsing
+    else if(c == '#'){
+        while(inStream.get(c) && c != '\n')
+            ;
+        token.eol() = true;
+        
+    }
+    //Check first quote to determine if string
+    else if(c == '"')
+    {
+        token.setStringValue(readString());
+    }
     // All else ifs from here are assigning symbol inside of token, implying
     // that there will be a whitespace behind the symbol 
     else if( c == '=' ){
@@ -146,7 +192,7 @@ Token Tokenizer::getToken() {
             token.symbol(c);
         }
     }
-    else if( c == '{' || c == '}')
+    else if( c == '{' || c == '}' || c == ',')
         token.symbol(c);
         
     else if( c == '+' || c == '-' || c == '*' || c == '/' || c == '%')

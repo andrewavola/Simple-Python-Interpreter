@@ -59,38 +59,48 @@ void AssignmentStatement::print() {
 //PrintStatement::PrintStatement() : _rhs{""} {}
 //PrintStatement::PrintStatement(ExprNode *rhs) : _rhsID{rhs->token().getName()}{}
 
-PrintStatement::PrintStatement() : _rhsExpression{nullptr} {}
-PrintStatement::PrintStatement(ExprNode *rhs) : _rhsExpression{rhs} {}
+PrintStatement::PrintStatement() : _relExpressions{nullptr} {}
+PrintStatement::PrintStatement(std::vector<ExprNode *> expressions) : _relExpressions{expressions} {}
 
 //Member Functions get string
-ExprNode *&PrintStatement::rhsExpression(){
-    return _rhsExpression;
+std::vector<ExprNode*> &PrintStatement::getExpressions(){
+    return _relExpressions;
 }
 
 //Print the return value of whatever is being returned from the  symbol table map.
 //In this case, we are getting the second element of the map which is an int.
 void PrintStatement::evaluate(SymTab &symTab){
-    TypeDescriptor *temp = symTab.getValueFor(rhsExpression()->token().getName());
-
-    if(temp->getType() == TypeDescriptor::INTEGER)
-        std::cout << dynamic_cast<IntegerTypeDescriptor *>(temp)->returnVal();
-    else if(temp->getType() == TypeDescriptor::BOOL)
-        std::cout << dynamic_cast<BoolTypeDescriptor *>(temp)->returnVal();
-    else if(temp->getType() == TypeDescriptor::DOUBLE)
-        std::cout << dynamic_cast<DoubleTypeDescriptor *>(temp)->returnVal();
-    else if(temp->getType() == TypeDescriptor::STRING)
-        std::cout << dynamic_cast<StringTypeDescriptor *>(temp)->returnVal();
-    else{
-        std::cout << "Error printing the variable's value\n";
-        exit(1);
+    TypeDescriptor *temp;
+    for (auto s: _relExpressions){
+        temp = s->evaluate(symTab);
+        if(temp->getType() == TypeDescriptor::INTEGER)
+            std::cout << dynamic_cast<IntegerTypeDescriptor *>(temp)->returnVal();
+        else if(temp->getType() == TypeDescriptor::BOOL)
+            std::cout << dynamic_cast<BoolTypeDescriptor *>(temp)->returnVal();
+        else if(temp->getType() == TypeDescriptor::DOUBLE)
+            std::cout << dynamic_cast<DoubleTypeDescriptor *>(temp)->returnVal();
+        else if(temp->getType() == TypeDescriptor::STRING)
+            std::cout << dynamic_cast<StringTypeDescriptor *>(temp)->returnVal();
+        else{
+            std::cout << "Error printing the variable's value\n";
+            exit(1);
+        }   
+        if(_relExpressions.size() > 1)
+            std::cout << " ";
+    
     }
+        
     
 }
 
 //Don't need to implement this
 void PrintStatement::print(){
     std::cout << "print ";
-    rhsExpression()->print();
+    for(auto s: _relExpressions)
+    {
+        s->print();
+    }
+        
     std::cout << std::endl;
 }
 

@@ -5,15 +5,17 @@
 #include <iostream>
 #include "Token.hpp"
 
-Token::Token(): _name{""}, _eof{false}, _eol{false}, _symbol{'\0'}, _isWholeNumber{false}, _isKeyWord{false} {}
+Token::Token(): _name{""}, _eof{false}, _eol{false}, _symbol{'\0'}, _isWholeNumber{false}, _isKeyWord{false}, _isDouble{false}, _isString{false} {}
 
 void Token::print() const {
     if( eol() ) std::cout << "EOL\n" ;
     else if( eof() )                    std::cout << "EOF" ;
     else if( isOpenParen() )  std::cout << "(" ;
+    else if( isDoubleNumber()) std::cout << getDoubleNumber();
     else if( isCloseParen() )  std::cout << ")" ;
     else if( isAssignmentOperator() )  std::cout << " = " ;
     else if( isSemiColon() )  std::cout << ";" ;
+    else if( isString() ) std::cout << getString();
     else if( isMultiplicationOperator() )  std::cout << " * " ;
     else if( isAdditionOperator() )  std::cout << " + " ;
     else if( isSubtractionOperator() )  std::cout << " - " ;

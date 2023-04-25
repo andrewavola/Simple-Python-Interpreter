@@ -68,5 +68,19 @@ public:
     TypeDescriptor* evaluate(SymTab &symTab) override;
 };
 
+class DoubleNumber : public ExprNode {
+public:
+    explicit DoubleNumber(Token token);
+    void print() override;
+    DoubleTypeDescriptor* evaluate(SymTab &symTab) override;
+};
+
+class StringValue : public ExprNode{
+public:
+    explicit StringValue(Token token);
+    void print() override;
+    StringTypeDescriptor* evaluate(SymTab &symTab) override;
+};
+
 
 #endif //APYTHONINTERPRETER_ExprNode_HPP

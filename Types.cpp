@@ -17,7 +17,7 @@ TypeDescriptor::TypeDescriptor(types dType): _type{dType}{}
 
 //Constructors
 
-IntegerTypeDescriptor::IntegerTypeDescriptor(int value, types dataType): _val{value}, _dataType{dataType}, TypeDescriptor(_dataType){}
+IntegerTypeDescriptor::IntegerTypeDescriptor(int value, types dataType): _val{value}, TypeDescriptor(dataType){}
 IntegerTypeDescriptor::IntegerTypeDescriptor(std::string varName): _varName{varName} {}
 
 std::string &IntegerTypeDescriptor::name(){
@@ -35,7 +35,7 @@ void IntegerTypeDescriptor::print(){
 // BoolTypeDescriptor ========================================
 
 //Constructors
-BoolTypeDescriptor::BoolTypeDescriptor(bool value, types dataType): _val{value}, _dataType{dataType}, TypeDescriptor{_dataType} {}
+BoolTypeDescriptor::BoolTypeDescriptor(bool value, types dataType): _val{value}, TypeDescriptor{dataType} {}
 BoolTypeDescriptor::BoolTypeDescriptor(std::string boolName): _boolName{boolName}{}
 
 std::string &BoolTypeDescriptor::name(){
@@ -52,7 +52,7 @@ void BoolTypeDescriptor::print(){
 //DoubleTypeDescriptor ========================================
 
 //Constructors
-DoubleTypeDescriptor::DoubleTypeDescriptor(double value, types dataType): _val{value}, _dataType{dataType}, TypeDescriptor{_dataType}{}
+DoubleTypeDescriptor::DoubleTypeDescriptor(double value, types dataType): _val{value}, TypeDescriptor{dataType}{}
 DoubleTypeDescriptor::DoubleTypeDescriptor(std::string doubleName): _doubleName{doubleName}{}   
 
 std::string &DoubleTypeDescriptor::name(){
@@ -70,7 +70,7 @@ void DoubleTypeDescriptor::print(){
 //StringTypeDescriptor
 
 //Constructors
-StringTypeDescriptor::StringTypeDescriptor(std::string value, types dataType):  _val{value}, _dataType{dataType}, TypeDescriptor{_dataType}{}
+StringTypeDescriptor::StringTypeDescriptor(std::string value, types dataType):  _val{value}, TypeDescriptor{dataType}{}
 StringTypeDescriptor::StringTypeDescriptor(std::string stringName): _stringName{stringName} {}
 
 std::string &StringTypeDescriptor::name(){

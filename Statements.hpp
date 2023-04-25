@@ -69,14 +69,15 @@ class PrintStatement : public Statement {
 public:
     //constructors
     PrintStatement();
-    PrintStatement(ExprNode *rhs);
+    PrintStatement(std::vector<ExprNode *> expressions);
 
-    ExprNode *&rhsExpression();
+    std::vector<ExprNode *> &getExpressions();
     virtual void evaluate(SymTab &symTab);
     virtual void print();
 
 private:
-    ExprNode *_rhsExpression;
+    std::vector<ExprNode *> _relExpressions;
+    // ExprNode *_rhsExpression;
     //std::string _rhsID;
 };
 

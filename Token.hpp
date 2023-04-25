@@ -27,6 +27,7 @@ public:
     void symbol(char c) { _symbol = c; }
     char symbol() { return _symbol; }
 
+    bool isComma() const {return _symbol == ',';}
     bool isSemiColon() const { return _symbol == ';'; }
     bool isAssignmentOperator() const              { return _symbol == '='; }
     bool isMultiplicationOperator() const { return _symbol == '*'; }
@@ -52,9 +53,28 @@ public:
     bool &isWholeNumber() { return _isWholeNumber; }
     bool isWholeNumber() const { return _isWholeNumber; }
     int getWholeNumber() const { return _wholeNumber; }
+
+    //Double logic inline functions
+    bool &isDoubleNumber() {return _isDouble;}
+    bool isDoubleNumber() const { return _isDouble;}
+    double getDoubleNumber() const { return _double;}
+    void setDoubleNumber(double n){
+        _double = n;
+        isDoubleNumber() = true;
+    }
+
     void setWholeNumber(int n) {
         _wholeNumber = n;
         isWholeNumber() = true;
+    }
+
+    //String logic inline functions
+    bool &isString(){ return _isString;}
+    bool isString() const {return _isString;}
+    std::string getString() const {return _string;}
+    void setStringValue(std::string n){
+        _string = n;
+        isString() = true;
     }
 
     void print() const;
@@ -90,8 +110,11 @@ private:
     char _symbol;
     int _wholeNumber;
     bool _isKeyWord;
-
+    bool _isDouble;
+    double _double;
     bool _isRelationOperator;
+    std::string _string;
+    bool _isString;
     std::string _relationalOperator;
     std::string _extendedOp;
 };

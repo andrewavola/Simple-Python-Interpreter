@@ -28,6 +28,8 @@ private:
 private:
     std::string readName();
     int readInteger();
+    double readDouble(int front, int behind);
+    std::string readString();
     std::string readRelationalOperator();
 };
 

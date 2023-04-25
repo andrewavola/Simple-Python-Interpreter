@@ -443,6 +443,40 @@ TypeDescriptor* InfixExprNode::evaluate(SymTab &symTab) {
             exit(1);
         }
     }
+    //floor division
+    else if(token().isExtendedOpFloor())
+    {
+        if(bothInt)
+        {
+            int returnVal = floor((dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                / dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal()));
+            return new IntegerTypeDescriptor(returnVal, TypeDescriptor::INTEGER);
+        }
+        else if(bothDouble)
+        {
+            int returnVal = floor((dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                / dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal()));
+            return new IntegerTypeDescriptor(returnVal, TypeDescriptor::INTEGER);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                int returnVal = floor(dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    / dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal());
+            return new IntegerTypeDescriptor(returnVal, TypeDescriptor::INTEGER);
+            }
+            else{
+                int returnVal = floor(dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    / dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal());
+            return new IntegerTypeDescriptor(returnVal, TypeDescriptor::INTEGER);
+            }
+        }
+          else{
+            std::cout << "Error performing Floor operator with inputed values\n";
+            exit(1);
+        }
+    }
     //Error check
     else {
         std::cout << "InfixExprNode::evaluate: don't know how to evaluate this operator\n";
@@ -497,3 +531,29 @@ TypeDescriptor* Variable::evaluate(SymTab &symTab) {
     return symTab.getValueFor(token().getName());
 }
 
+//Double
+DoubleNumber::DoubleNumber(Token token) : ExprNode(token) {}
+
+void DoubleNumber::print() {
+    token().print();
+}
+
+DoubleTypeDescriptor* DoubleNumber::evaluate(SymTab &symTab){
+    if(debug)
+        std::cout << "DoubleNumber::evaluate: returning " << symTab.getValueFor(token().getName()) << std::endl;
+    return new DoubleTypeDescriptor(token().getDoubleNumber(), TypeDescriptor::DOUBLE);
+}
+
+//String
+StringValue::StringValue(Token token) : ExprNode(token) {}
+
+void StringValue::print(){
+    token().print();
+}
+
+StringTypeDescriptor* StringValue::evaluate(SymTab &symTab){
+    if(debug)
+        std::cout << "StringValue::evaluate: returning " << symTab.getValueFor(token().getName()) << std::endl;
+    
+    return new StringTypeDescriptor(token().getString(), TypeDescriptor::STRING);
+}

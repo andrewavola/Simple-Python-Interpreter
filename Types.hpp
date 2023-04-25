@@ -40,7 +40,7 @@ public:
 private:
     std::string _varName;
     int _val;
-    types _dataType;
+
     
 };
 
@@ -51,13 +51,13 @@ public:
 
     virtual std::string &name();
     bool  &returnVal(){return _val;}
-    void returnVal(int setVal){_val = setVal;}
+    void returnVal(bool setVal){_val = setVal;}
     virtual void print();
 
 private:
     std::string _boolName;
     bool  _val;
-    types _dataType;
+
 };
 
 class DoubleTypeDescriptor: public TypeDescriptor{
@@ -67,13 +67,12 @@ public:
 
     virtual std::string &name();
     double &returnVal(){return _val;}
-    void returnVal(int setVal){_val = setVal;}
+    void returnVal(double setVal){_val = setVal;}
     virtual void print();
 
 private:
     std::string _doubleName;
     double _val;
-    types _dataType;
 
 };
 
@@ -83,14 +82,13 @@ public:
     StringTypeDescriptor(std::string stringName);
 
     std::string &returnVal(){return _val;}
-    void returnVal(int setVal){_val = setVal;}
+    void returnVal(std::string setVal){_val = setVal;}
     virtual std::string &name();
     virtual void print();
 
 private:
     std::string _stringName;
     std::string _val;
-    types _dataType;
 };
 
 

@@ -11,6 +11,8 @@ void SymTab::setValueFor(const std::string &vName,  TypeDescriptor *temp) {
     // NumberDescriptor *test = new NumberDescriptor(desc->type());
     // if(debug)
     //     std::cout << vName << " <- " << parsedValue << std::endl;
+
+    
     if(temp->getType() == TypeDescriptor::INTEGER)
     {
         int temporary = dynamic_cast<IntegerTypeDescriptor *>(temp)->returnVal();

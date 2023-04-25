@@ -1,5 +1,7 @@
-x = 5
-y = 5 + 2 * 3
 
-z = x + y
-print z
+  for (i = 0
+     ; i < 10;
+     i = i + 1
+     ) {
+   print(i)  
+   }

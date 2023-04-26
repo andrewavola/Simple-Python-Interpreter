@@ -280,12 +280,12 @@ AssignmentStatement *Parser::assignStatement() {
 
     ExprNode *rightHandSideExpr = relExpr();
     
-    Token tok = tokenizer.getToken();
+    // Token tok = tokenizer.getToken();
     
-    if (!tok.eol())
-    {
-        die("Parser::assignStatement", "Expected a new-line instead got", tok);
-    }
+    // if (!tok.eol())
+    // {
+    //     die("Parser::assignStatement", "Expected a new-line instead got", tok);
+    // }
         
     //if (!tok.isSemiColon())
        //die("Parser::assignStatement", "Expected a semicolon instead got", tok);

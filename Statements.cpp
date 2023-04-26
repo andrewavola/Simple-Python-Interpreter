@@ -49,7 +49,7 @@ ExprNode *&AssignmentStatement::rhsExpression() {
 void AssignmentStatement::print() {
     std::cout << _lhsVariable << " = ";
     _rhsExpression->print();
-    std::cout << std::endl;
+    // std::cout << std::endl;
 }
 
 
@@ -137,7 +137,7 @@ std::vector<Statements*> ForStatement::returnVec(){
 
 void ForStatement::print()
 {
-    std::cout << "Printing for loop statement:\n";
+    std::cout << "\nPrinting for loop statement:\n";
     std::cout << "for(";
     left()->print();
     std::cout << "; ";

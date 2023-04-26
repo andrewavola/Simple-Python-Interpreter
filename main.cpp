@@ -34,8 +34,9 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     SymTab symTab;
-
+    std::cout << "Printing All Statements:\n";
     statements->print();
+    std::cout << "Evaluating All Statements:\n";
     statements->evaluate(symTab);
     std::cout << std::endl << "Symbol table contains the following variables.\n";
     symTab.print();

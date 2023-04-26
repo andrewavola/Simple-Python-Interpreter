@@ -14,6 +14,9 @@ void Token::print() const {
     else if( isDoubleNumber()) std::cout << getDoubleNumber();
     else if( isCloseParen() )  std::cout << ")" ;
     else if( isAssignmentOperator() )  std::cout << " = " ;
+    else if( isClosedBrack() ) std::cout << " } ";
+    else if(isOpenBrack() ) std::cout << " { ";
+    else if(isComma() ) std::cout << " , ";
     else if( isSemiColon() )  std::cout << ";" ;
     else if( isString() ) std::cout << getString();
     else if( isMultiplicationOperator() )  std::cout << " * " ;

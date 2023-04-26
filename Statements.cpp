@@ -137,7 +137,20 @@ std::vector<Statements*> ForStatement::returnVec(){
 
 void ForStatement::print()
 {
+    std::cout << "Printing for loop statement:\n";
+    std::cout << "for(";
+    left()->print();
+    std::cout << "; ";
+    mid()->print();
+    std::cout << "; ";
+    right()->print();
 
+    std::cout << "){ \n";
+    for(auto s: returnVec()){
+        s->print();
+        std::cout << std::endl;
+    }
+    std::cout << "}\n\n";
 }
 
 // Function to add our statements inside of the for-loop brackets to a vector inside

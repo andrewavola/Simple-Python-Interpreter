@@ -52,6 +52,7 @@ Statements *Parser::statements() {
         }
         else if(tok.isKeyword() && tok.getName() == "for" )
         {
+            tokenizer.ungetToken();
             ForStatement *forStmt = forStatement();
             stmts->addStatement(forStmt);
             
@@ -84,8 +85,11 @@ void Parser::continueThroughEOL()
 {
     Token placeholder = tokenizer.getToken();
     
-    while(!placeholder.eof() && !placeholder.isName() && !(placeholder.symbol() > 0))
-        placeholder = tokenizer.getToken();
+    while(!placeholder.eof() && !placeholder.isName() && !(placeholder.symbol() > 0)){
+        
+         placeholder = tokenizer.getToken();
+    }
+       
        
     tokenizer.ungetToken();
     
@@ -95,11 +99,13 @@ PrintStatement *Parser::printStatement(){
     //Parses the following grammar rule
     //
     //<print-statement> -> print <id>
+
+    
     std::vector<ExprNode *> expressions;
     ExprNode *temp;
     Token varName = tokenizer.getToken();
     if(!varName.isName() || !varName.isKeyword())
-        die("Parser::printStatement", "Expected a name token, instead got", varName);
+        die("Parser::printStatement", "Expected a print token, instead got", varName);
     Token firstParenth = tokenizer.getToken();
     if(!firstParenth.isOpenParen())
         die("Parser::printStatement", "Expected a open-parenthesis, instead got", firstParenth);
@@ -146,12 +152,14 @@ PrintStatement *Parser::printStatement(){
 
 ForStatement *Parser::forStatement(){
         
-    Token openParen = tokenizer.getToken();
+    Token forTok = tokenizer.getToken();
+    if(!forTok.isName() || !forTok.isKeyword())
+        die("ForStatement ->", "Expected FOR keyword, instead got", forTok);
     std::vector<Statements*> forLoopStatements;
     AssignmentStatement *lhs;
     AssignmentStatement *rhs; 
     ExprNode *mid;
-
+    Token openParen = tokenizer.getToken();
     if(openParen.isOpenParen())
     {
         lhs = assignStatement();
@@ -174,15 +182,30 @@ ForStatement *Parser::forStatement(){
         die("ForStatement ->", "Expected semi-colon, instead got", isFirstSemi);
 
     Token isSecondSemi = tokenizer.getToken();
+    // std::cout << "IsSecondSemi: ";
+    // isSecondSemi.print();
+    // exit(1);
+    if(isSecondSemi.eol())
+    {
+        continueThroughEOL();
+        isSecondSemi = tokenizer.getToken();
+    }
+       
     if(isSecondSemi.isSemiColon())
     {
-        isSecondSemi = tokenizer.getToken();
-        rhs = assignStatement();     
+        // isSecondSemi = tokenizer.getToken();
+        rhs = assignStatement();
+        // rhs->print();
+        // exit(1);     
     }
     else
         die("ForStatement ->", "Expected semi-colon, instead got", isSecondSemi);
 
     Token isClosedParenth = tokenizer.getToken();
+    if(isClosedParenth.eol()){
+        continueThroughEOL();
+        isClosedParenth = tokenizer.getToken();
+    }
     
     if(isClosedParenth.isCloseParen())
     {
@@ -194,18 +217,32 @@ ForStatement *Parser::forStatement(){
             
             //Check for EOL
             if(isClosedBrack.eol())
+            {
+                continueThroughEOL();
                 isClosedBrack = tokenizer.getToken();
+            }
+            //vars
+            else
+                tokenizer.ungetToken();
+
+            if(isClosedBrack.isName())
+                tokenizer.ungetToken();
+
             while(!isClosedBrack.isClosedBrack())
             {
-                tokenizer.ungetToken();
+                
+                // tokenizer.ungetToken();
                 Statements *statementsPtr = statements();
                 forLoopStatements.push_back(statementsPtr);
+                // statementsPtr->print();
                 isClosedBrack = tokenizer.getToken();
-                if(isClosedBrack.eol())
+                if(isClosedBrack.eol()){
+                    continueThroughEOL();
                     isClosedBrack = tokenizer.getToken();
-       
+                }
+                
             }
-            Token getAfterClosedBrack = tokenizer.getToken();
+            // Token getAfterClosedBrack = tokenizer.getToken();
         }
         else    
             die("ForStatement ->", "Expected closed-bracket, instead got", isClosedBrack);
@@ -225,8 +262,16 @@ AssignmentStatement *Parser::assignStatement() {
     // <assign-stmtement> -> <id> = <expr>
     Token varName = tokenizer.getToken();
     
+    if(varName.eol())
+    {
+        continueThroughEOL();
+        varName = tokenizer.getToken();
+    }
+    
+    
     if (!varName.isName())
         die("Parser::assignStatement", "Expected a name token, instead got", varName);
+    
     
     Token assignOp = tokenizer.getToken();
     

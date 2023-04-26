@@ -81,7 +81,7 @@ std::string Tokenizer::readRelationalOperator() {
    
     inStream.get(c);
 
-    if (c = '<')
+    if (c == '<')
     {
         relationOp += c;
         inStream.get(c);

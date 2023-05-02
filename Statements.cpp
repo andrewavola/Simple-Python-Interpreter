@@ -23,7 +23,11 @@ void Statements::print() {
 // called properly.
 void Statements::evaluate(SymTab &symTab) {
     for (auto s: _statements)
+    {   
         s->evaluate(symTab);
+        
+    }
+        
 }
 
 // AssignmentStatement
@@ -89,6 +93,7 @@ void PrintStatement::evaluate(SymTab &symTab){
             std::cout << " ";
     
     }
+    std::cout << std::endl;
         
     
 }

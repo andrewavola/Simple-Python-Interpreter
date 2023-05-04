@@ -17,12 +17,14 @@ public:
     int &getInitVal(){return initValue;}
     void setLookupVal(std::string value){lookUpVal = value;} //sets iterator name
     std::string getLookupVal(){return lookUpVal;}
+    int getStepValue(){return stepValue;}
     bool condition(SymTab &symTab); // should we iterate?
     int next();       // the value to be assigned to the loop counter.
 
 private:
       int initValue, stepValue, rangeValue;
       std::string lookUpVal;
+      bool directionOfStep = false;
 };
 
 

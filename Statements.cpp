@@ -139,13 +139,24 @@ void ForStatement::print()
 
 void ForStatement::evaluate(SymTab &symTab)
 {
+    bool firstIter = true;
     symTab.setValueFor(_rng->getLookupVal(), new IntegerTypeDescriptor(_rng->getInitVal(), TypeDescriptor::INTEGER));
     while(_rng->condition(symTab)){
-        
-        symTab.setValueFor(_rng->getLookupVal(), new IntegerTypeDescriptor(_rng->next(), TypeDescriptor::INTEGER));
+        if(firstIter){
+            _forLoopStatements->evaluate(symTab);
+            firstIter = false;
+            symTab.setValueFor(_rng->getLookupVal(), new IntegerTypeDescriptor(_rng->next(), TypeDescriptor::INTEGER));
+            continue;
+        }
         _forLoopStatements->evaluate(symTab);
-        
+        symTab.setValueFor(_rng->getLookupVal(), new IntegerTypeDescriptor(_rng->next(), TypeDescriptor::INTEGER));
     }
+    //python always returns the previous step size in the symbol table
+    if(!firstIter)
+        symTab.setValueFor(_rng->getLookupVal()
+                    , new IntegerTypeDescriptor(dynamic_cast<IntegerTypeDescriptor *>(symTab.getValueFor(_rng->getLookupVal()))->returnVal() - _rng->getStepValue()
+                    , TypeDescriptor::INTEGER));
+
 }
 
 

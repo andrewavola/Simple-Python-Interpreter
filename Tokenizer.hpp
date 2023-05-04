@@ -16,6 +16,7 @@ public:
     Tokenizer(std::ifstream &inStream);
     Token getToken();
     void ungetToken();
+    void setIsNegative(bool val){isNegative = val;}
     void printProcessedTokens();
     bool reachedRelationalOperator(char character) {if( (character == '>') || (character == '<') || (character == '!')) {return true;} return false; };
 
@@ -31,6 +32,7 @@ private:
     double readDouble(int front, int behind);
     std::string readString();
     std::string readRelationalOperator();
+    bool isNegative = false;
 };
 
 #endif //APYTHONINTERPRETER_TOKENIZER_HPP

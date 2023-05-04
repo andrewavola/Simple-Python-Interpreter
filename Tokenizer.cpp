@@ -51,7 +51,10 @@ int Tokenizer::readInteger() {
     char c;
     while( inStream.get(c) && isdigit(c) ) {
         //This seems to be a conversion from character to int 
-        intValue = intValue * 10 + c - '0';
+        if(!isNegative)
+            intValue = intValue * 10 + c - '0';
+        else
+            intValue = (0 - (intValue * 10 + c - '0'));
     }
 
     // WHITESPACE CHECKER
@@ -152,9 +155,15 @@ Token Tokenizer::getToken() {
             token.setWholeNumber(frontPeriod);
             inStream.putback(c);
         }
-        
+    
     //comments
-    } else if( reachedRelationalOperator(c)) {
+    } else if(c == '-' && isdigit(inStream.peek())){
+        setIsNegative(true);
+        int returnNegVal = readInteger();
+        token.setWholeNumber(returnNegVal);
+        setIsNegative(false);
+    }
+    else if( reachedRelationalOperator(c)) {
         // put the relation operator back into the input stream so
         // we read the entire operator in a function
         // does NOT include ==

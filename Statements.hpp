@@ -10,6 +10,7 @@
 
 #include "ExprNode.hpp"
 #include "SymTab.hpp"
+#include "Range.hpp"
 
 // The Statement (abstract) class serves as a super class for all statements that
 // are defined in the language. Ultimately, statements have to be evaluated.
@@ -86,26 +87,22 @@ class ForStatement : public Statement{
 public: 
     //constructors
     ForStatement();
-    ForStatement(AssignmentStatement *leftOfSemiColon, ExprNode *mid, AssignmentStatement *rightOfSemiColon, std::vector<Statements *> stmtVec);
+    ForStatement(Statements *stmtVec, Range* rng);
     
     //Function
     void addToForLoopStatements(Statements *stmts);
 
     //Getters
-    AssignmentStatement *&left();
-    AssignmentStatement *&right();
-    ExprNode *&mid();
-    std::vector<Statements *> returnVec();
+    Statements *returnVec(){return _forLoopStatements;}
+    Range *returnRng(){return _rng;}
 
     //Evaluations
     virtual void evaluate(SymTab &symTab);
     virtual void print();
 
 private:
-    AssignmentStatement *_losc;
-    ExprNode *_middle;
-    AssignmentStatement *_rosc;
-    std::vector<Statements *> _forLoopStatements;
+    Statements *_forLoopStatements;
+    Range *_rng;
 
 };
 #endif //APYTHONINTERPRETER_STATEMENTS_HPP

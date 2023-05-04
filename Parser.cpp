@@ -10,6 +10,7 @@
 #include "Parser.hpp"
 #include "Statements.hpp"
 
+
 // Parser functions
 
 
@@ -150,111 +151,115 @@ PrintStatement *Parser::printStatement(){
 
 }
 
+Range *Parser::initRange(const std::string varName){
+
+    
+    Range *rng;
+    Token getNextToken;
+    
+    
+    getNextToken = tokenizer.getToken();
+    
+    if(!getNextToken.isOpenParen())
+         die("ForStatement ->", "Expected OPEN PARENTH, instead got", getNextToken);
+
+    Token parameterOne = tokenizer.getToken();
+    if(!parameterOne.isWholeNumber())
+         die("ForStatement ->", "Expected FIRST argument to RANGE function, instead got", parameterOne);
+    
+    getNextToken = tokenizer.getToken();
+
+    //If we have only one argument
+    if(getNextToken.isCloseParen()){
+         rng = new Range(parameterOne.getWholeNumber());
+         rng->setLookupVal(varName);
+         return rng;
+    }   
+
+    //If we have two arguments
+    else if(getNextToken.isComma()){
+        Token parameterTwo =  tokenizer.getToken();
+        if(!parameterTwo.isWholeNumber())
+            die("ForStatement ->", "Expected SECOND argument to RANGE function, instead got", parameterTwo);
+        getNextToken = tokenizer.getToken();
+        if(getNextToken.isCloseParen()){
+            rng = new Range(parameterOne.getWholeNumber(), parameterTwo.getWholeNumber());
+            rng->setLookupVal(varName);
+            return rng;
+        }
+        else if(getNextToken.isComma()){
+            //If we have three arguments
+            Token parameterThree = tokenizer.getToken();
+            if(!parameterThree.isWholeNumber())
+                 die("ForStatement ->", "Expected THIRD argument to RANGE function, instead got", parameterThree);
+            getNextToken = tokenizer.getToken();
+            if(!getNextToken.isCloseParen())
+                 die("ForStatement ->", "Expected Closed-Parenth to RANGE function, instead got", getNextToken);
+            rng = new Range(parameterOne.getWholeNumber(), parameterTwo.getWholeNumber(), parameterThree.getWholeNumber());
+            rng->setLookupVal(varName);
+            return rng;
+                
+        }
+        else 
+            die("ForStatement ->", "Expected Closed-Paren or Comma, instead got", getNextToken);
+
+    }
+    else
+        die("ForStatement ->", "Expected Closed-Paren or Comma, instead got", getNextToken);
+
+    return rng;
+
+}
 ForStatement *Parser::forStatement(){
         
     Token forTok = tokenizer.getToken();
     if(!forTok.isName() || !forTok.isKeyword())
         die("ForStatement ->", "Expected FOR keyword, instead got", forTok);
-    std::vector<Statements*> forLoopStatements;
-    AssignmentStatement *lhs;
-    AssignmentStatement *rhs; 
-    ExprNode *mid;
-    Token openParen = tokenizer.getToken();
-    if(openParen.isOpenParen())
-    {
-        lhs = assignStatement();
-    }
-        
-    else
-        die("ForStatement ->", "Expected open-parenthesis, instead got", openParen);
-    
-    // We found our initializing assignment statement of our for loop successfuly, and
-    // now need to determine if proper syntax follows our first assignment statement. If it 
-    // does, then we begin to find our rel-expression.
-    Token isFirstSemi = tokenizer.getToken();
-    
-    if(isFirstSemi.isSemiColon())
-    {
-        mid = relExpr();
-    }
-        
-    else
-        die("ForStatement ->", "Expected semi-colon, instead got", isFirstSemi);
 
-    Token isSecondSemi = tokenizer.getToken();
-    // std::cout << "IsSecondSemi: ";
-    // isSecondSemi.print();
-    // exit(1);
-    if(isSecondSemi.eol())
-    {
-        continueThroughEOL();
-        isSecondSemi = tokenizer.getToken();
-    }
-       
-    if(isSecondSemi.isSemiColon())
-    {
-        // isSecondSemi = tokenizer.getToken();
-        rhs = assignStatement();
-        // rhs->print();
-        // exit(1);     
-    }
-    else
-        die("ForStatement ->", "Expected semi-colon, instead got", isSecondSemi);
-
-    Token isClosedParenth = tokenizer.getToken();
-    if(isClosedParenth.eol()){
-        continueThroughEOL();
-        isClosedParenth = tokenizer.getToken();
-    }
+    Statements *forLoopStatements;
+    Range *rng;
     
-    if(isClosedParenth.isCloseParen())
-    {
-        Token isOpenBrack = tokenizer.getToken();
-        Token isClosedBrack;
-        if(isOpenBrack.isOpenBrack())
-        {
-            isClosedBrack = tokenizer.getToken();
-            
-            //Check for EOL
-            if(isClosedBrack.eol())
-            {
+    
+    Token varName = tokenizer.getToken();
+    if(!varName.isName())
+        die("ForStatement ->", "Expected NAME token, instead got", varName);
+    
+    Token checkForIn = tokenizer.getToken();
+    if(!checkForIn.isKeywordIn())
+         die("ForStatement ->", "Expected NAME-IN token, instead got", checkForIn);
+
+    Token checkForRange = tokenizer.getToken();
+    if(!checkForRange.isKeywordRange())
+         die("ForStatement ->", "Expected NAME-RANGE, instead got", checkForRange);
+        
+    
+    //Initialize range class object
+    rng = initRange(varName.getName());
+
+    Token getNextToken = tokenizer.getToken();
+    if(!getNextToken.isOpenBrack())
+         die("ForStatement ->", "Expected Open-Bracket, instead got", getNextToken);
+    
+    continueThroughEOL();
+
+    //We know we found an open bracket to start
+    getNextToken = tokenizer.getToken();
+    if(getNextToken.isName())
+        tokenizer.ungetToken();
+
+    while(!getNextToken.isClosedBrack()){
+            forLoopStatements = statements();
+            getNextToken = tokenizer.getToken();
+            if(getNextToken.eol()){
                 continueThroughEOL();
-                isClosedBrack = tokenizer.getToken();
+                getNextToken = tokenizer.getToken();
             }
-            //vars
-            else
-                tokenizer.ungetToken();
-
-            if(isClosedBrack.isName())
-                tokenizer.ungetToken();
-
-            while(!isClosedBrack.isClosedBrack())
-            {
-                
-                // tokenizer.ungetToken();
-                Statements *statementsPtr = statements();
-                forLoopStatements.push_back(statementsPtr);
-                // statementsPtr->print();
-                isClosedBrack = tokenizer.getToken();
-                if(isClosedBrack.eol()){
-                    continueThroughEOL();
-                    isClosedBrack = tokenizer.getToken();
-                }
-                
-            }
-            // Token getAfterClosedBrack = tokenizer.getToken();
-        }
-        else    
-            die("ForStatement ->", "Expected closed-bracket, instead got", isClosedBrack);
     }
-    else
-        die("ForStatement ->", "Expected closed parenthesis, instead got", isClosedParenth);
-    
-    
-    
-    return new ForStatement(lhs, mid, rhs, forLoopStatements);
+
+    return new ForStatement(forLoopStatements, rng);
 
  }
+
 
 AssignmentStatement *Parser::assignStatement() {
     // Parses the following grammar rule
@@ -279,16 +284,6 @@ AssignmentStatement *Parser::assignStatement() {
         die("Parser::assignStatement", "Expected an equal sign, instead got", assignOp);
 
     ExprNode *rightHandSideExpr = relExpr();
-    
-    // Token tok = tokenizer.getToken();
-    
-    // if (!tok.eol())
-    // {
-    //     die("Parser::assignStatement", "Expected a new-line instead got", tok);
-    // }
-        
-    //if (!tok.isSemiColon())
-       //die("Parser::assignStatement", "Expected a semicolon instead got", tok);
 
     return new AssignmentStatement(varName.getName(), rightHandSideExpr);
 }
@@ -319,29 +314,6 @@ ExprNode *Parser::relExpr(){
     return left;
 
 }
-// ExprNode *Parser::relTerm(){
-//     //This function parses the grammar rules:
-
-//     //<relTerm> -> <relPrimary> {(>, >=, <, <=) <relPrimary>}
-//     // <relPrimary> -> <expr>
-//     // <expr> -> <term> {<add_op> <term>}
-//     // <add_op> -> + | -
-
-//     ExprNode *left = relPrimary();
-//     Token tok = tokenizer.getToken();
-//     while(tok.isGreaterThanOperator() || tok.isGreaterThanOrEqualToOperator()
-//          || tok.isLessThanOperator() || tok.isLessThanOrEqualToOperator())
-//     {
-//         InfixExprNode *p = new InfixExprNode(tok);
-//         p->left() = left;
-//         p->right() = relPrimary();
-//         left = p;
-//         tok = tokenizer.getToken();
-
-//     }
-//     tokenizer.ungetToken();
-//     return left;
-// }
 
 // This is going to reference expr()
 ExprNode *Parser::relPrimary(){

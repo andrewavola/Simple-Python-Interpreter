@@ -112,71 +112,39 @@ void PrintStatement::print(){
 // ForLoopStatement
 // ===========================================================================
 // ForLoopStatement Constructors
-ForStatement::ForStatement() : _losc{nullptr}, _middle{nullptr}, _rosc{nullptr} {}
-ForStatement::ForStatement(AssignmentStatement *left, ExprNode *middle, AssignmentStatement *right, std::vector<Statements *> stmtVec)
+ForStatement::ForStatement() : _forLoopStatements{nullptr}, _rng{nullptr}{}
+ForStatement::ForStatement(Statements *stmtVec, Range *rng)
 {
-    _losc = left;
-    _middle = middle;
-    _rosc = right;
     _forLoopStatements = stmtVec;
+    _rng = rng;
+
 }
 
-AssignmentStatement *&ForStatement::left()
-{
-    return _losc;
-}
 
-AssignmentStatement *&ForStatement::right()
-{
-    return _rosc;
-}
 
-ExprNode *&ForStatement::mid()
-{
-    return _middle;
-}
-
-std::vector<Statements*> ForStatement::returnVec(){
-    return _forLoopStatements;
-}
 
 void ForStatement::print()
 {
     std::cout << "\nPrinting for loop statement:\n";
     std::cout << "for(";
-    left()->print();
-    std::cout << "; ";
-    mid()->print();
-    std::cout << "; ";
-    right()->print();
-
+    
     std::cout << "){ \n";
-    for(auto s: returnVec()){
-        s->print();
-        std::cout << std::endl;
-    }
+    returnVec()->print();
     std::cout << "}\n\n";
 }
 
 // Function to add our statements inside of the for-loop brackets to a vector inside
 // the ForStatement subclass
-void ForStatement::addToForLoopStatements(Statements *stmts) { _forLoopStatements.push_back(stmts); }
+//void ForStatement::addToForLoopStatements(Statements *stmts) { _forLoopStatements.push_back(stmts); }
 
 void ForStatement::evaluate(SymTab &symTab)
 {
-    int index = 0;
-    unsigned int vecSize = returnVec().size();
-    left()->evaluate(symTab);
-    while(dynamic_cast<BoolTypeDescriptor *>(mid()->evaluate(symTab))->returnVal())
-    {
-        while(index < vecSize)
-        {
-            returnVec().at(index)->evaluate(symTab);
-            index++;
-            
-        }
-        index = 0;
-        right()->evaluate(symTab);
+    symTab.setValueFor(_rng->getLookupVal(), new IntegerTypeDescriptor(_rng->getInitVal(), TypeDescriptor::INTEGER));
+    while(_rng->condition(symTab)){
+        
+        symTab.setValueFor(_rng->getLookupVal(), new IntegerTypeDescriptor(_rng->next(), TypeDescriptor::INTEGER));
+        _forLoopStatements->evaluate(symTab);
+        
     }
 }
 

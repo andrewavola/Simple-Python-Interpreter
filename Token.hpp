@@ -101,6 +101,9 @@ public:
     
     //Step 5:
     bool isKeyword() {return (getName() == "for") ||  (getName() == "print");}
+    bool isKeywordIn(){return getName() == "in";}
+    bool isKeywordRange(){return getName() == "range";}
+    
     void setIsKeyword(){_isKeyWord = true;}
 
 private:

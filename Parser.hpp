@@ -10,6 +10,7 @@
 #include "SymTab.hpp"
 #include "ExprNode.hpp"
 #include "Statements.hpp"
+#include "Range.hpp"
 
 #include<vector>
 #include<iostream>
@@ -36,6 +37,7 @@ public:
     ExprNode *relTerm();
     ExprNode *relPrimary();
 
+    Range *initRange(const std::string varName);
     
 
     std::string id();

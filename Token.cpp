@@ -5,7 +5,8 @@
 #include <iostream>
 #include "Token.hpp"
 
-Token::Token(): _name{""}, _eof{false}, _eol{false}, _symbol{'\0'}, _isWholeNumber{false}, _isKeyWord{false}, _isDouble{false}, _isString{false} {}
+Token::Token(): _name{""}, _eof{false}, _eol{false}, _symbol{'\0'}, _isWholeNumber{false}
+                , _isKeyWord{false}, _isDouble{false}, _isString{false}, _isIndent{false}, _isOutdent{false} {}
 
 void Token::print() const {
     if( eol() ) std::cout << "EOL\n" ;
@@ -17,7 +18,10 @@ void Token::print() const {
     else if( isClosedBrack() ) std::cout << " } ";
     else if(isOpenBrack() ) std::cout << " { ";
     else if(isComma() ) std::cout << " , ";
+    else if(isColon() ) std::cout << " : ";
     else if( isSemiColon() )  std::cout << ";" ;
+    else if(getIsIndent()) std::cout << "INDENT";
+    else if(getIsOutdent()) std::cout << "OUTDENT";
     else if( isString() ) std::cout << getString();
     else if( isMultiplicationOperator() )  std::cout << " * " ;
     else if( isAdditionOperator() )  std::cout << " + " ;

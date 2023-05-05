@@ -35,13 +35,21 @@ Statements *Parser::statements() {
 
 
     Statements *stmts = new Statements();
-    
+    int indentSpace = 0;
     //Takes care of EOL before our statements
     continueThroughEOL();
+    
     Token tok = tokenizer.getToken();
     
-    while (tok.isName())
+    if(tok.getIsIndent() || tok.getIsOutdent()){
+        indentSpace = tok.getIndentSpace();
+        tok = tokenizer.getToken();
+    }
+    
+    // std::cout << tok.getIndentSpace() << " , " << tokenizer.getIndentStack().top();
+    while (tok.isName() && indentSpace == tokenizer.getIndentStack().top())
     {
+        
         if (tok.isKeyword() && tok.getName() == "print" )
         {
             tokenizer.ungetToken();
@@ -49,15 +57,17 @@ Statements *Parser::statements() {
             stmts->addStatement(printStmt);
             continueThroughEOL();
             tok = tokenizer.getToken();
-        
+            indentSpace = tok.getIndentSpace();
+            if(indentSpace != tokenizer.getIndentStack().top()){
+                tokenizer.getIndentStack().pop();
+                break;
+            }
         }
         else if(tok.isKeyword() && tok.getName() == "for" )
         {
             tokenizer.ungetToken();
             ForStatement *forStmt = forStatement();
             stmts->addStatement(forStmt);
-            
-            tok = tokenizer.getToken();
             continueThroughEOL();
             tok = tokenizer.getToken();
         }
@@ -77,6 +87,11 @@ Statements *Parser::statements() {
         }
     }
     
+    if(!(indentSpace == tokenizer.getIndentStack().top())){
+        std::cout << "One or more lines does not match in indentation level..." << std::endl;
+        exit(1);
+    }
+        
     tokenizer.ungetToken();
     return stmts;
 }
@@ -86,12 +101,12 @@ void Parser::continueThroughEOL()
 {
     Token placeholder = tokenizer.getToken();
     
-    while(!placeholder.eof() && !placeholder.isName() && !(placeholder.symbol() > 0)){
+    while(!placeholder.eof() && !placeholder.isName() && !(placeholder.symbol() > 0) && !(placeholder.getIsIndent() || placeholder.getIsOutdent())){
         
          placeholder = tokenizer.getToken();
     }
        
-       
+    
     tokenizer.ungetToken();
     
 }
@@ -237,24 +252,33 @@ ForStatement *Parser::forStatement(){
     rng = initRange(varName.getName());
 
     Token getNextToken = tokenizer.getToken();
-    if(!getNextToken.isOpenBrack())
-         die("ForStatement ->", "Expected Open-Bracket, instead got", getNextToken);
+    if(!getNextToken.isColon())
+         die("ForStatement ->", "Expected Colon, instead got", getNextToken);
     
     continueThroughEOL();
 
     //We know we found an open bracket to start
     getNextToken = tokenizer.getToken();
-    if(getNextToken.isName())
-        tokenizer.ungetToken();
+    if(!getNextToken.getIsIndent())
+        die("ForStatement ->", "Expected INDENT for a statement, instead got", getNextToken);
+    tokenizer.ungetToken();
+    // if(getNextToken.isName())
+    //     tokenizer.ungetToken();
+        
+    
+    forLoopStatements = statements();
 
-    while(!getNextToken.isClosedBrack()){
-            forLoopStatements = statements();
-            getNextToken = tokenizer.getToken();
-            if(getNextToken.eol()){
-                continueThroughEOL();
-                getNextToken = tokenizer.getToken();
-            }
-    }
+    // while(getNextToken.getIndentSpace() == tokenizer.getIndentStack().top()){
+    //         forLoopStatements = statements();
+    //         getNextToken = tokenizer.getToken();
+            
+    //         if(getNextToken.eol()){
+    //             continueThroughEOL();
+    //             getNextToken = tokenizer.getToken();
+                
+    //         }
+           
+    // }
 
     return new ForStatement(forLoopStatements, rng);
 

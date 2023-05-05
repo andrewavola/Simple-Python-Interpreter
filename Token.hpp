@@ -28,6 +28,7 @@ public:
     char symbol() { return _symbol; }
 
     bool isComma() const {return _symbol == ',';}
+    bool isColon() const {return _symbol == ':';}
     bool isSemiColon() const { return _symbol == ';'; }
     bool isAssignmentOperator() const              { return _symbol == '='; }
     bool isMultiplicationOperator() const { return _symbol == '*'; }
@@ -68,6 +69,13 @@ public:
         isWholeNumber() = true;
     }
 
+    void setIndentSpace(int n){
+        _indentSpaces = n;
+    }
+
+    int getIndentSpace()const {return _indentSpaces;}
+    
+
     //String logic inline functions
     bool &isString(){ return _isString;}
     bool isString() const {return _isString;}
@@ -105,7 +113,10 @@ public:
     bool isKeywordRange(){return getName() == "range";}
     
     void setIsKeyword(){_isKeyWord = true;}
-
+    void setIsIndent(){_isIndent = true;}
+    void setIsOutdent(){_isOutdent = true;}
+    bool getIsIndent() const{return _isIndent;}
+    bool getIsOutdent() const {return _isOutdent;}
 private:
     std::string _name;
     bool _eof, _eol;
@@ -116,6 +127,9 @@ private:
     bool _isDouble;
     double _double;
     bool _isRelationOperator;
+    bool _isIndent;
+    bool _isOutdent;
+    int _indentSpaces = 0;
     std::string _string;
     bool _isString;
     std::string _relationalOperator;

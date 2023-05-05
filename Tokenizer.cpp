@@ -109,7 +109,11 @@ std::string Tokenizer::readRelationalOperator() {
 // - sets a reference to the passed inputstream reference to inStream in private section of class
 // - defaults ungottenToken to false
 // - lastToken is set to null
-Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, inStream{stream}, lastToken{} {}
+Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, inStream{stream}, lastToken{}{
+    indentStack.push(0);
+    setParsingNewLine(true);
+}
+
 
 Token Tokenizer::getToken() {
 
@@ -117,12 +121,37 @@ Token Tokenizer::getToken() {
         ungottenToken = false;
         return lastToken;
     }
-
+    int spaceCounter = 0;
     char c;
     
     //Part of step 1 of phase 2
     while( inStream.get(c) && isspace(c) && c != '\n' )  // Skip spaces but not new-line chars.
+        spaceCounter++;
         ;
+
+    if(spaceCounter > 0 && getParsingNewLine() && spaceCounter > indentStack.top()){
+        
+        Token indentTok;
+        indentTok.setIndentSpace(spaceCounter);
+        indentTok.setIsIndent();
+        indentStack.push(spaceCounter);
+        inStream.putback(c);
+        _tokens.push_back(indentTok);
+        setParsingNewLine(false);
+        return lastToken = indentTok;
+    }
+    else if(spaceCounter > 0 && getParsingNewLine() && spaceCounter < indentStack.top())
+    {
+        Token outdentTok;
+        outdentTok.setIndentSpace(spaceCounter);
+        outdentTok.setIsOutdent();
+        // indentStack.pop();
+        inStream.putback(c);
+        setParsingNewLine(false);
+        return lastToken = outdentTok;
+    }
+   
+    
     
     //while( inStream.get(c) && isspace(c) )  // Skip spaces including the new-line chars.
         //;
@@ -136,10 +165,13 @@ Token Tokenizer::getToken() {
     //std::cout << "c = " << c << std::endl;
 
     Token token;
+    
+    setParsingNewLine(false);
     if( inStream.eof()) {
         token.eof() = true;
     } else if( c == '\n' ) {  // will not ever be the case unless new-line characters are not supressed.
         token.eol() = true;
+        setParsingNewLine(true);
     } else if( isdigit(c)) { // a integer?
         // put the digit back into the input stream so
         // we read the entire number in a function
@@ -201,7 +233,7 @@ Token Tokenizer::getToken() {
             token.symbol(c);
         }
     }
-    else if( c == '{' || c == '}' || c == ',')
+    else if( c == '{' || c == '}' || c == ',' || c == ':')
         token.symbol(c);
         
     else if( c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
@@ -236,6 +268,7 @@ Token Tokenizer::getToken() {
     // token.print();
     // std::cout << ", ";
     // Vector of all tokens from the file we are reading
+    token.setIndentSpace(spaceCounter);
     _tokens.push_back(token);
     return lastToken = token;
 }

@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include "Tokenizer.hpp"
 
 std::string Tokenizer::readName() {
@@ -110,7 +111,7 @@ std::string Tokenizer::readRelationalOperator() {
 // - defaults ungottenToken to false
 // - lastToken is set to null
 Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, inStream{stream}, lastToken{}{
-    indentStack.push(0);
+    indentStack.push_back(0);
     setParsingNewLine(true);
 }
 
@@ -125,36 +126,46 @@ Token Tokenizer::getToken() {
     char c;
     
     //Part of step 1 of phase 2
-    while( inStream.get(c) && isspace(c) && c != '\n' )  // Skip spaces but not new-line chars.
+    while( inStream.get(c) && isspace(c) && c != '\n' ){
         spaceCounter++;
-        ;
+         
+    } // Skip spaces but not new-line chars.
 
-    if(spaceCounter > 0 && getParsingNewLine() && spaceCounter > indentStack.top()){
-        
-        Token indentTok;
-        indentTok.setIndentSpace(spaceCounter);
-        indentTok.setIsIndent();
-        indentStack.push(spaceCounter);
-        inStream.putback(c);
-        _tokens.push_back(indentTok);
-        setParsingNewLine(false);
-        return lastToken = indentTok;
-    }
-    else if(spaceCounter > 0 && getParsingNewLine() && spaceCounter < indentStack.top())
+    
+    if(getParsingNewLine())
     {
-        Token outdentTok;
-        outdentTok.setIndentSpace(spaceCounter);
-        outdentTok.setIsOutdent();
-        // indentStack.pop();
-        inStream.putback(c);
-        setParsingNewLine(false);
-        return lastToken = outdentTok;
+        if(c == '\n')
+            spaceCounter = 0;
+        else if(spaceCounter > getIndentStack().back()){
+            Token indentTok;
+            indentTok.setIsIndent();
+            getIndentStack().push_back(spaceCounter);
+            setParsingNewLine(false);
+            inStream.putback(c);
+            _tokens.push_back(indentTok);
+            return lastToken = indentTok;
+        }
+        else if(spaceCounter < getIndentStack().back())
+        {
+            if(std::find(getIndentStack().begin(), getIndentStack().end(), spaceCounter) == getIndentStack().end())
+            {
+                std::cout << "Program has unaligned indentation level\n";
+                exit(1);
+            }
+            setParsingNewLine(false);
+            Token outdentTok;
+            outdentTok.setIsOutdent();
+            getIndentStack().pop_back();
+            inStream.putback(c);
+            _tokens.push_back(outdentTok);
+            return lastToken = outdentTok;
+            
+        }
+        
     }
-   
+
     
-    
-    //while( inStream.get(c) && isspace(c) )  // Skip spaces including the new-line chars.
-        //;
+
     
 
     if(inStream.bad()) {

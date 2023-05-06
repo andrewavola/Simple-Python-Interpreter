@@ -113,10 +113,11 @@ public:
     bool isKeywordRange(){return getName() == "range";}
     
     void setIsKeyword(){_isKeyWord = true;}
+
     void setIsIndent(){_isIndent = true;}
     void setIsOutdent(){_isOutdent = true;}
-    bool getIsIndent() const{return _isIndent;}
-    bool getIsOutdent() const {return _isOutdent;}
+    bool getIndent() const{return _isIndent;}
+    bool getOutdent() const {return _isOutdent;}
 private:
     std::string _name;
     bool _eof, _eol;
@@ -127,6 +128,7 @@ private:
     bool _isDouble;
     double _double;
     bool _isRelationOperator;
+    
     bool _isIndent;
     bool _isOutdent;
     int _indentSpaces = 0;

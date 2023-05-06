@@ -140,17 +140,26 @@ void ForStatement::print()
 void ForStatement::evaluate(SymTab &symTab)
 {
     bool firstIter = true;
+    //Sets iterator equal to initial value of range parameter
+    std::string tempString;
+    tempString = _rng->getLookupVal();
+
+    _rng = new Range(_rng->getInitVal(), _rng->getRangeValue(), _rng->getStepValue());
+    _rng->setLookupVal(tempString);
     symTab.setValueFor(_rng->getLookupVal(), new IntegerTypeDescriptor(_rng->getInitVal(), TypeDescriptor::INTEGER));
+    
+    //while range condition is satisfied, execute statements
     while(_rng->condition(symTab)){
         if(firstIter){
             _forLoopStatements->evaluate(symTab);
             firstIter = false;
-            symTab.setValueFor(_rng->getLookupVal(), new IntegerTypeDescriptor(_rng->next(), TypeDescriptor::INTEGER));
+            symTab.setValueFor(_rng->getLookupVal(), new IntegerTypeDescriptor(_rng->next(symTab), TypeDescriptor::INTEGER));
             continue;
         }
         _forLoopStatements->evaluate(symTab);
-        symTab.setValueFor(_rng->getLookupVal(), new IntegerTypeDescriptor(_rng->next(), TypeDescriptor::INTEGER));
+        symTab.setValueFor(_rng->getLookupVal(), new IntegerTypeDescriptor(_rng->next(symTab), TypeDescriptor::INTEGER));
     }
+
     //python always returns the previous step size in the symbol table
     if(!firstIter)
         symTab.setValueFor(_rng->getLookupVal()

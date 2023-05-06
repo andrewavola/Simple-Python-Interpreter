@@ -35,21 +35,15 @@ Statements *Parser::statements() {
 
 
     Statements *stmts = new Statements();
-    int indentSpace = 0;
+
     //Takes care of EOL before our statements
     continueThroughEOL();
-    
     Token tok = tokenizer.getToken();
     
-    if(tok.getIsIndent() || tok.getIsOutdent()){
-        indentSpace = tok.getIndentSpace();
-        tok = tokenizer.getToken();
-    }
-    
     // std::cout << tok.getIndentSpace() << " , " << tokenizer.getIndentStack().top();
-    while (tok.isName() && indentSpace == tokenizer.getIndentStack().top())
+    while (tok.isName())
     {
-        
+        // std::cout << tokenizer.getIndentStack().top();
         if (tok.isKeyword() && tok.getName() == "print" )
         {
             tokenizer.ungetToken();
@@ -57,11 +51,9 @@ Statements *Parser::statements() {
             stmts->addStatement(printStmt);
             continueThroughEOL();
             tok = tokenizer.getToken();
-            indentSpace = tok.getIndentSpace();
-            if(indentSpace != tokenizer.getIndentStack().top()){
-                tokenizer.getIndentStack().pop();
-                break;
-            }
+            if(tok.getOutdent())
+                return stmts;
+  
         }
         else if(tok.isKeyword() && tok.getName() == "for" )
         {
@@ -70,6 +62,7 @@ Statements *Parser::statements() {
             stmts->addStatement(forStmt);
             continueThroughEOL();
             tok = tokenizer.getToken();
+        
         }
         else if(!tok.isKeyword())
         {
@@ -78,6 +71,8 @@ Statements *Parser::statements() {
             stmts->addStatement(assignStmt);
             continueThroughEOL();
             tok = tokenizer.getToken();
+            if(tok.getOutdent())
+                return stmts;
             
         }
         else
@@ -85,25 +80,38 @@ Statements *Parser::statements() {
             std::cout << "Error recognizing keyword or ID...";
             exit(1);
         }
+        // if(tok.getOutdent()){
+        //     break;
+        // }
+        // if(tok.getIndentSpace() == tokenizer.getIndentStack().back()){
+        //     tok = tokenizer.getToken();
+             
+        // }
+           
+           
     }
-    
-    if(!(indentSpace == tokenizer.getIndentStack().top())){
-        std::cout << "One or more lines does not match in indentation level..." << std::endl;
-        exit(1);
-    }
+    // if(tok.getOutdent() && (tok.getIndentSpace() == tokenizer.getIndentStack().back())){
+    //     std::cout << "hi\n";
+    //     return stmts;
+    // }
+    // else if(tok.getOutdent() && tok.getIndentSpace() < tokenizer.getIndentStack().back())
+    // {
         
+    // }
     tokenizer.ungetToken();
     return stmts;
+    
+        
 }
 
 //Used to check for EOL's until EOF to avoid erroring out in main
 void Parser::continueThroughEOL()
 {
     Token placeholder = tokenizer.getToken();
-    
-    while(!placeholder.eof() && !placeholder.isName() && !(placeholder.symbol() > 0) && !(placeholder.getIsIndent() || placeholder.getIsOutdent())){
+    while(!placeholder.eof() && !placeholder.isName() && !(placeholder.symbol() > 0) && !(placeholder.getIndent() || placeholder.getOutdent())){
         
-         placeholder = tokenizer.getToken();
+        placeholder = tokenizer.getToken();
+         
     }
        
     
@@ -256,30 +264,12 @@ ForStatement *Parser::forStatement(){
          die("ForStatement ->", "Expected Colon, instead got", getNextToken);
     
     continueThroughEOL();
-
-    //We know we found an open bracket to start
     getNextToken = tokenizer.getToken();
-    if(!getNextToken.getIsIndent())
-        die("ForStatement ->", "Expected INDENT for a statement, instead got", getNextToken);
-    tokenizer.ungetToken();
-    // if(getNextToken.isName())
-    //     tokenizer.ungetToken();
-        
+    
+    // if(!getNextToken.getIsIndent())
+    //     die("ForStatement ->", "Expected INDENT for a statement, instead got", getNextToken);    tokenizer.ungetToken();
     
     forLoopStatements = statements();
-
-    // while(getNextToken.getIndentSpace() == tokenizer.getIndentStack().top()){
-    //         forLoopStatements = statements();
-    //         getNextToken = tokenizer.getToken();
-            
-    //         if(getNextToken.eol()){
-    //             continueThroughEOL();
-    //             getNextToken = tokenizer.getToken();
-                
-    //         }
-           
-    // }
-
     return new ForStatement(forLoopStatements, rng);
 
  }

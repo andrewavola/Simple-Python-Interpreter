@@ -36,13 +36,10 @@ bool Range::condition(SymTab &symTab){
     if(dynamic_cast<IntegerTypeDescriptor*>(symTab.getValueFor(getLookupVal()))->returnVal() >= rangeValue)
         return false;
     return true;
-    
-
-    
 }
 
-int Range::next(){
-    initValue = initValue + stepValue;
-    return initValue;
+int Range::next(SymTab &symTab){
+    int temp = dynamic_cast<IntegerTypeDescriptor *>(symTab.getValueFor(getLookupVal()))->returnVal() + stepValue;
+    return temp;
 }
 

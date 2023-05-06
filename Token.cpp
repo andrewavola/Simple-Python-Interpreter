@@ -20,8 +20,8 @@ void Token::print() const {
     else if(isComma() ) std::cout << " , ";
     else if(isColon() ) std::cout << " : ";
     else if( isSemiColon() )  std::cout << ";" ;
-    else if(getIsIndent()) std::cout << "INDENT";
-    else if(getIsOutdent()) std::cout << "OUTDENT";
+    else if(getIndent()) std::cout << "INDENT";
+    else if(getOutdent()) std::cout << "OUTDENT";
     else if( isString() ) std::cout << getString();
     else if( isMultiplicationOperator() )  std::cout << " * " ;
     else if( isAdditionOperator() )  std::cout << " + " ;

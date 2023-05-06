@@ -1,5 +1,7 @@
-print("hello")
+
 for i in range(5):
-     print(i)
-     for i in range(6):
-          print(i)
+    print(i)
+    for j in range (3):
+        print(j)
+print("hello")
+

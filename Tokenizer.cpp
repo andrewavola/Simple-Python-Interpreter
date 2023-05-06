@@ -219,6 +219,7 @@ Token Tokenizer::getToken() {
         while(inStream.get(c) && c != '\n')
             ;
         token.eol() = true;
+        setParsingNewLine(true);
         
     }
     //Check first quote to determine if string

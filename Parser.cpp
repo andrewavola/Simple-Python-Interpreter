@@ -96,15 +96,32 @@ Statements *Parser::statements() {
             }
                
         }
-        else if(!tok.isKeyword() )
+        else if(!tok.isKeyword() && tok.isName())
         {
             tokenizer.ungetToken();
             AssignmentStatement *assignStmt = assignStatement();
             stmts->addStatement(assignStmt);
             continueThroughEOL();
             tok = tokenizer.getToken();
+
+            tok.print();
+
             if(tok.getOutdent())
+                 tokenizer.getIndentStack().pop_back();
+
+            if(tok.getOutdent() && tok.getIndentSpace() < tokenizer.getIndentStack().back())
+            {
+                tokenizer.ungetToken();
                 return stmts;
+            }
+            else if(tok.getOutdent() && tok.getIndentSpace() == tokenizer.getIndentStack().back()){
+                tokenizer.setParsingNewLine(false);
+                return stmts;
+            }
+            if(tok.getIndent()){
+                std::cout << "Indent is not allowed after a assignment statement... only a new statement or outdent\n";
+                exit(1);
+            }
             
         }
         else

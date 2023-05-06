@@ -152,10 +152,11 @@ Token Tokenizer::getToken() {
                 std::cout << "Program has unaligned indentation level\n";
                 exit(1);
             }
-            setParsingNewLine(false);
             Token outdentTok;
             outdentTok.setIsOutdent();
-            getIndentStack().pop_back();
+            if(spaceCounter == getIndentStack().back())
+                setParsingNewLine(false);
+            outdentTok.setIndentSpace(spaceCounter);
             inStream.putback(c);
             _tokens.push_back(outdentTok);
             return lastToken = outdentTok;

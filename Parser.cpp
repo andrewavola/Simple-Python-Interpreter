@@ -51,8 +51,26 @@ Statements *Parser::statements() {
             stmts->addStatement(printStmt);
             continueThroughEOL();
             tok = tokenizer.getToken();
+
             if(tok.getOutdent())
+                 tokenizer.getIndentStack().pop_back();
+
+            if(tok.getOutdent() && tok.getIndentSpace() < tokenizer.getIndentStack().back())
+            {
+                tokenizer.ungetToken();
                 return stmts;
+            }
+            else if(tok.getOutdent() && tok.getIndentSpace() == tokenizer.getIndentStack().back()){
+                tokenizer.setParsingNewLine(false);
+                return stmts;
+            }
+            if(tok.getIndent()){
+                std::cout << "Indent is not allowed after a print statement... only a new statement or outdent\n";
+                exit(1);
+            }
+
+            
+                
   
         }
         else if(tok.isKeyword() && tok.getName() == "for" )
@@ -62,9 +80,23 @@ Statements *Parser::statements() {
             stmts->addStatement(forStmt);
             continueThroughEOL();
             tok = tokenizer.getToken();
-        
+            
+                
+            if(tok.getOutdent())
+                tokenizer.getIndentStack().pop_back();
+
+            if(tok.getOutdent()  && tok.getIndentSpace() < tokenizer.getIndentStack().back())
+            {
+                tokenizer.ungetToken();
+                return stmts;
+            }
+            else if(tok.getOutdent() && tok.getIndentSpace() == tokenizer.getIndentStack().back()){
+                tokenizer.setParsingNewLine(false);
+                return stmts;
+            }
+               
         }
-        else if(!tok.isKeyword())
+        else if(!tok.isKeyword() )
         {
             tokenizer.ungetToken();
             AssignmentStatement *assignStmt = assignStatement();
@@ -79,25 +111,9 @@ Statements *Parser::statements() {
         {
             std::cout << "Error recognizing keyword or ID...";
             exit(1);
-        }
-        // if(tok.getOutdent()){
-        //     break;
-        // }
-        // if(tok.getIndentSpace() == tokenizer.getIndentStack().back()){
-        //     tok = tokenizer.getToken();
-             
-        // }
-           
-           
+        }   
     }
-    // if(tok.getOutdent() && (tok.getIndentSpace() == tokenizer.getIndentStack().back())){
-    //     std::cout << "hi\n";
-    //     return stmts;
-    // }
-    // else if(tok.getOutdent() && tok.getIndentSpace() < tokenizer.getIndentStack().back())
-    // {
-        
-    // }
+    
     tokenizer.ungetToken();
     return stmts;
     

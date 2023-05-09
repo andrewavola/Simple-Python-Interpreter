@@ -108,7 +108,7 @@ public:
     }
     
     //Step 5:
-    bool isKeyword() {return (getName() == "for") ||  (getName() == "print");}
+    bool isKeyword() {return (getName() == "for") ||  (getName() == "print") || (getName() == "if");}
     bool isKeywordIn(){return getName() == "in";}
     bool isKeywordRange(){return getName() == "range";}
     

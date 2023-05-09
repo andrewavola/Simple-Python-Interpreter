@@ -272,8 +272,11 @@ Token Tokenizer::getToken() {
         inStream.putback(c);
         token.setName( readName() );
         //std::cout << token.getName() << std::endl;
-        if(token.isKeyword())
+        if(token.isKeyword()){
+            
             token.setIsKeyword();
+        }
+            
 
     } else {
         std::cout << "Unknown character in input. ->" << c << "<-" << std::endl;

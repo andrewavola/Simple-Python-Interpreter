@@ -39,6 +39,7 @@ Statements *Parser::statements() {
     continueThroughEOL();
     Token tok = tokenizer.getToken();
     
+    
     // std::cout << tok.getIndentSpace() << " , " << tokenizer.getIndentStack().top();
     while (tok.isName())
     {
@@ -95,9 +96,31 @@ Statements *Parser::statements() {
             }
                
         }
+        else if(tok.isKeyword() && tok.getName() == "if" )
+        {
+            tokenizer.ungetToken();
+            IfStatement *ifStmt = ifStatement();
+            stmts->addStatement(ifStmt);
+            continueThroughEOL();
+            tok = tokenizer.getToken();
+            
+                
+            if(tok.getOutdent())
+                tokenizer.getIndentStack().pop_back();
+
+            if(tok.getOutdent()  && tok.getIndentSpace() < tokenizer.getIndentStack().back())
+            {
+                tokenizer.ungetToken();
+                return stmts;
+            }
+            else if(tok.getOutdent() && tok.getIndentSpace() == tokenizer.getIndentStack().back()){
+                tokenizer.setParsingNewLine(false);
+                return stmts;
+            }
+               
+        }
         else if(!tok.isKeyword() )
         {   
-            
             tokenizer.ungetToken();
             AssignmentStatement *assignStmt = assignStatement();
             stmts->addStatement(assignStmt);
@@ -136,6 +159,62 @@ Statements *Parser::statements() {
         
 }
 
+IfStatement *Parser::ifStatement(){
+    Statements *ifStatements = nullptr;
+    ExprNode *ifConditional = nullptr;
+    std::vector<ExprNode *> elifConditions;
+    std::vector<Statements *> elifStatements;
+    Statements *elseStatements = nullptr;
+    int counter = 0;
+
+    Token getNextTok = tokenizer.getToken();
+    if(!(getNextTok.getName() == "if"))
+        die("Parser::IfStatement -IF", "Expected a IF token, instead got", getNextTok);
+
+    ifConditional = test();
+    getNextTok = tokenizer.getToken();
+    if(!(getNextTok.isColon()))
+        die("Parser::IfStatement", "Expected a colon token, instead got", getNextTok);
+
+    continueThroughEOL();
+    //Get the indent
+    getNextTok = tokenizer.getToken();
+    ifStatements = statements();
+    continueThroughEOL();
+
+    getNextTok = tokenizer.getToken();
+    
+    while(getNextTok.getName() == "elif"){
+
+        elifConditions.push_back(test());
+        getNextTok = tokenizer.getToken();
+        if(!getNextTok.isColon())
+            die("Parser::IfStatement - ELIF", "Expected a colon token, instead got", getNextTok);
+        continueThroughEOL();
+        //Get the indent
+        getNextTok = tokenizer.getToken();
+        
+        elifStatements.push_back(statements());
+        continueThroughEOL();
+        counter++;
+        getNextTok = tokenizer.getToken();
+    }
+
+    if(getNextTok.getName() == "else"){
+        getNextTok = tokenizer.getToken();
+        if(!getNextTok.isColon())
+            die("Parser::IfStatement-else", "Expected a colon token, instead got", getNextTok);
+        continueThroughEOL();
+        //Get the indent
+        getNextTok = tokenizer.getToken();
+        elseStatements = statements();
+        
+    }
+    tokenizer.ungetToken();
+    continueThroughEOL();
+    return new IfStatement(ifStatements, ifConditional, elifConditions, elifStatements, elseStatements);
+
+}
 //Used to check for EOL's until EOF to avoid erroring out in main
 void Parser::continueThroughEOL()
 {

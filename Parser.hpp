@@ -26,6 +26,7 @@ public:
     AssignmentStatement *assignStatement();
     PrintStatement  *printStatement();
     ForStatement *forStatement();
+    IfStatement *ifStatement();
 
     void continueThroughEOL();
     ExprNode *arith_expr();
@@ -43,6 +44,7 @@ public:
     ExprNode *comparison();
     ExprNode *relTerm();
     ExprNode *relPrimary();
+
 
     Range *initRange(const std::string varName);
     

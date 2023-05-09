@@ -105,4 +105,31 @@ private:
     Range *_rng;
 
 };
+
+class IfStatement : public Statement{
+public:
+    //Constructors
+    IfStatement();
+    IfStatement(Statements *ifVec, ExprNode *ifConditional, std::vector<ExprNode *> elifConditions
+                , std::vector<Statements *> elVec, Statements *elseStmt);
+
+    //Getters
+    Statements *returnIfVec(){return ifVec;}
+    std::vector<Statements *> returnElifVec(){return elifVec;}
+    Statements *returnElseVec(){return elseVec;}
+    ExprNode *returnCondition(){return cond;}
+    
+
+    //Abstract class functions
+    virtual void evaluate(SymTab &symTab);
+    virtual void print();
+
+private:
+    bool elseExists = false;
+    Statements *ifVec;
+    ExprNode *cond;
+    std::vector<ExprNode *> elifConds;
+    std::vector<Statements *> elifVec;
+    Statements *elseVec;
+};
 #endif //APYTHONINTERPRETER_STATEMENTS_HPP

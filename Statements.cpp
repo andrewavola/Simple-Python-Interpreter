@@ -168,7 +168,66 @@ void ForStatement::evaluate(SymTab &symTab)
 
 }
 
+// IfStatement
+// ===========================================================================
+//
 
+IfStatement::IfStatement(): ifVec{nullptr}, cond{nullptr}, elifConds{nullptr}, elifVec{nullptr}
+                            , elseVec{nullptr}{}
+IfStatement::IfStatement(Statements *ifVec, ExprNode *ifConditional, std::vector<ExprNode *> elif
+                        , std::vector<Statements *> elVec, Statements *elseStmt): ifVec{ifVec}, cond{ifConditional}{
+    elifConds = elif;
+    elifVec = elVec;
+    elseVec = elseStmt;
+}
+
+void IfStatement::evaluate(SymTab &symTab){
+    int counter = 0;
+    bool wentIntoOtherCond = false;
+    if(cond){
+        wentIntoOtherCond = true;
+        ifVec->evaluate(symTab);
+    }
+    else if(!elifVec.empty())
+    {
+       while(counter < elifConds.size()){
+            if(elifConds.at(counter)){
+                elifVec.at(counter)->evaluate(symTab);
+                wentIntoOtherCond = true;
+                break;
+            }
+       }
+    }
+    if(!wentIntoOtherCond)
+        if(!(elseVec == nullptr))
+            elseVec->evaluate(symTab);
+}
+
+
+void IfStatement::print(){
+    int counter = 0;
+    std::cout << "Printing If Statement\n";
+    std::cout << "If ";
+    returnCondition()->print();
+    std::cout << " : \n";
+    ifVec->print();
+    if(!elifConds.empty()){
+        while(counter < elifConds.size()){
+            std::cout << "elif ";
+            elifConds.at(counter)->print();
+            std::cout << " : \n";
+            elifVec.at(counter)->print();
+            counter++;
+        }    
+    }
+    
+    if(elseVec != nullptr){
+        std::cout << "else :\n";
+        elseVec->print();
+    }
+        
+
+}
    
 
     

@@ -30,6 +30,9 @@ void Token::print() const {
     else if( isDivisionOperator() )  std::cout << " / " ;
     else if( isNotEqualSecondary() ) std::cout << " <> ";
     else if( isExtendedOpFloor() ) std::cout << " // ";
+    else if( isAndOp() ) std::cout << " AND ";
+    else if( isOrOp() ) std::cout << " OR ";
+    else if( isNotOp() ) std::cout << " NOT ";
     else if( isName() )  std::cout <<  getName();
     else if( isWholeNumber() ) std::cout <<  getWholeNumber();
     else if ( isEqualOperator() ) std::cout << " == ";

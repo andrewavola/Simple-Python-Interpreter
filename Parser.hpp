@@ -32,8 +32,15 @@ public:
     ExprNode *term();
     ExprNode *primary();
 
+
+    //Step 5: Phase 3
+    ExprNode *test();
+    ExprNode *or_test();
+    ExprNode *and_test();
+    ExprNode *not_test();
+    
     //Step 4:
-    ExprNode *relExpr();
+    ExprNode *comparison();
     ExprNode *relTerm();
     ExprNode *relPrimary();
 

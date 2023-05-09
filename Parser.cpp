@@ -33,7 +33,6 @@ Statements *Parser::statements() {
     // <statement> -> <assignStatement> <statement>
     // <statement> -> Epsilon
 
-
     Statements *stmts = new Statements();
 
     //Takes care of EOL before our statements
@@ -96,20 +95,20 @@ Statements *Parser::statements() {
             }
                
         }
-        else if(!tok.isKeyword() && tok.isName())
-        {
+        else if(!tok.isKeyword() )
+        {   
+            
             tokenizer.ungetToken();
             AssignmentStatement *assignStmt = assignStatement();
             stmts->addStatement(assignStmt);
             continueThroughEOL();
             tok = tokenizer.getToken();
-
-            tok.print();
-
+            
+            
             if(tok.getOutdent())
-                 tokenizer.getIndentStack().pop_back();
+                tokenizer.getIndentStack().pop_back();
 
-            if(tok.getOutdent() && tok.getIndentSpace() < tokenizer.getIndentStack().back())
+            if(tok.getOutdent()  && tok.getIndentSpace() < tokenizer.getIndentStack().back())
             {
                 tokenizer.ungetToken();
                 return stmts;
@@ -119,9 +118,9 @@ Statements *Parser::statements() {
                 return stmts;
             }
             if(tok.getIndent()){
-                std::cout << "Indent is not allowed after a assignment statement... only a new statement or outdent\n";
+                std::cout << "Indent is not allowed after a print statement... only a new statement or outdent\n";
                 exit(1);
-            }
+            }   
             
         }
         else
@@ -170,7 +169,7 @@ PrintStatement *Parser::printStatement(){
     //ID
     Token isComma;
     //Get first expression in the print statement
-    ExprNode *firstExpr = relExpr();
+    ExprNode *firstExpr = test();
 
     //loop for more expressions that are comma delimited
     isComma = tokenizer.getToken();
@@ -178,7 +177,7 @@ PrintStatement *Parser::printStatement(){
     if(isComma.isComma()){
         expressions.push_back(firstExpr);
         while(isComma.isComma()){
-            temp = relExpr();
+            temp = test();
             expressions.push_back(temp);
             isComma = tokenizer.getToken();
         }
@@ -327,16 +326,70 @@ AssignmentStatement *Parser::assignStatement() {
     
     Token assignOp = tokenizer.getToken();
     
+    
     if (!assignOp.isAssignmentOperator())
         die("Parser::assignStatement", "Expected an equal sign, instead got", assignOp);
 
-    ExprNode *rightHandSideExpr = relExpr();
+    ExprNode *rightHandSideExpr = test();
 
     return new AssignmentStatement(varName.getName(), rightHandSideExpr);
 }
 
+ExprNode *Parser::test(){
+    ExprNode *left = or_test();
+    return left;
+}
 
-ExprNode *Parser::relExpr(){
+ExprNode *Parser::or_test(){
+    ExprNode *left = and_test();
+    Token tok = tokenizer.getToken();
+    while(tok.isOrOp()){
+        InfixExprNode *p = new InfixExprNode(tok);
+        p->left() = left;
+        p->right() = and_test();
+        left = p;
+        tok = tokenizer.getToken();   
+    }
+    tokenizer.ungetToken();
+    return left;
+}
+
+ExprNode *Parser::and_test(){
+    ExprNode *left = not_test();
+    Token tok = tokenizer.getToken();
+    while(tok.isAndOp()){
+        InfixExprNode *p = new InfixExprNode(tok);
+        p->left() = left;
+        p->right() = not_test();
+        left = p;
+        tok = tokenizer.getToken();   
+    }
+    tokenizer.ungetToken();
+    return left;
+}
+
+ExprNode *Parser::not_test(){
+    
+    //Gets "not" keyword
+    ExprNode *left;
+    Token tok = tokenizer.getToken();
+    
+    if(tok.isNotOp()){
+        InfixExprNode *p = new InfixExprNode(tok);
+        p->left() = not_test();
+        left = p;
+    }
+    else{
+        tokenizer.ungetToken();
+        left = comparison();
+    }
+    
+    return left;
+      
+}
+
+
+ExprNode *Parser::comparison(){
     //This function parses the grammar rules:
 
     //<relExpr> -> <relTerm> {(==, !=) <relTerm>}
@@ -435,7 +488,7 @@ ExprNode *Parser::primary() {
     else if( tok.isName() )
         return new Variable(tok);
     else if (tok.isOpenParen()) {
-        ExprNode *p = relExpr();
+        ExprNode *p = test();
         Token token = tokenizer.getToken();
         if (!token.isCloseParen())
             die("Parser::primary", "Expected close-parenthesis, instead got", token);

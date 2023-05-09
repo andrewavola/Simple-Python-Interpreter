@@ -20,6 +20,8 @@ ExprNode *&InfixExprNode::left() { return _left; }
 ExprNode *&InfixExprNode::right() { return _right; }
 
 TypeDescriptor* InfixExprNode::evaluate(SymTab &symTab) {
+
+    
     bool bothInt = false; // int
     bool intAndDouble = false; // double
     bool bothDouble = false; // double
@@ -27,17 +29,26 @@ TypeDescriptor* InfixExprNode::evaluate(SymTab &symTab) {
     bool boolVals = false;
     bool lhsDouble = false;
     bool rhsDouble = false;
-    
+    bool isNotOp = false;
+    TypeDescriptor *lValue;
+    TypeDescriptor *rValue;
     // Evaluates an infix expression using a post-order traversal of the expression tree.
-    TypeDescriptor *lValue = left()->evaluate(symTab);
-    TypeDescriptor *rValue = right()->evaluate(symTab);
-
+    if(!(left() == nullptr)){
+        lValue = left()->evaluate(symTab);
+    }
+        
+    if(!(right() == nullptr))
+        rValue = right()->evaluate(symTab);
+        
+    
     if(debug)
         std::cout << "InfixExprNode::evaluate: " << lValue << " " <<
             token().symbol() << " " << rValue << std::endl;
 
+    if(token().isNotOp())
+        isNotOp = true;
     //Handles what values we have in our downcasted TypeDescriptors
-    if(lValue->getType() == TypeDescriptor::INTEGER && rValue->getType() == TypeDescriptor::INTEGER)
+    else if(lValue->getType() == TypeDescriptor::INTEGER && rValue->getType() == TypeDescriptor::INTEGER)
     {
         bothInt = true;
     }
@@ -58,16 +69,27 @@ TypeDescriptor* InfixExprNode::evaluate(SymTab &symTab) {
         bothStrings = true;
     else if(lValue->getType() == TypeDescriptor::BOOL && rValue->getType() == TypeDescriptor::BOOL)
         boolVals = true;
+    
     else
     {
         std::cout << "Incompatible types for operations\n";
         exit(1);
     }
         
-
     //Operations
 
-    
+    if(token().isNotOp()){
+        //IF we have no expression to the right of NOT
+        if(lValue->getType() == TypeDescriptor::INTEGER){
+            int returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal();
+            return new BoolTypeDescriptor(!returnVal, TypeDescriptor::BOOL);
+        }
+        else if(lValue->getType() == TypeDescriptor::BOOL){
+            bool returnVal = dynamic_cast<BoolTypeDescriptor *>(lValue)->returnVal();
+            return new BoolTypeDescriptor(!returnVal, TypeDescriptor::BOOL);
+        }
+          
+    }
     //Addition
     if(token().isAdditionOperator())
     {
@@ -477,6 +499,47 @@ TypeDescriptor* InfixExprNode::evaluate(SymTab &symTab) {
             exit(1);
         }
     }
+    else if(token().isAndOp()){
+        if(bothInt)
+        {
+            bool returnVal = (dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                && dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(bothDouble)
+        {
+            bool returnVal = (dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                && dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                bool returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    && dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            else{
+                bool returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    && dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+        }
+        else if(boolVals){
+            bool returnVal = dynamic_cast<BoolTypeDescriptor *>(lValue)->returnVal()
+                && dynamic_cast<BoolTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+          else{
+            // std::cout <<  dynamic_cast<IntegerTypeDescriptor*>(lValue)->getType();
+            // std::cout << ", ";
+            // std::cout << dynamic_cast<IntegerTypeDescriptor*>(rValue)->getType();
+            std::cout << "Error performing AND operator with inputed values\n";
+            exit(1);
+        }
+    }
+    
     //Error check
     else {
         std::cout << "InfixExprNode::evaluate: don't know how to evaluate this operator\n";
@@ -490,9 +553,11 @@ TypeDescriptor* InfixExprNode::evaluate(SymTab &symTab) {
 }
 
 void InfixExprNode::print() {
-    _left->print();
+    if(!(_left == nullptr))
+        _left->print();
     token().print();
-    _right->print();
+    if(!(_right == nullptr))
+        _right->print();
 }
 
 // WHoleNumber

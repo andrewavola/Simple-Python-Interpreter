@@ -112,6 +112,12 @@ public:
     bool isKeywordIn(){return getName() == "in";}
     bool isKeywordRange(){return getName() == "range";}
     
+    //Boolean operators
+    bool isAndOp()const{return getName() == "and";}
+    bool isOrOp()const{return getName() == "or";}
+    bool isNotOp() const{return getName() == "not";}
+    
+
     void setIsKeyword(){_isKeyWord = true;}
 
     void setIsIndent(){_isIndent = true;}
@@ -128,6 +134,7 @@ private:
     bool _isDouble;
     double _double;
     bool _isRelationOperator;
+
     
     bool _isIndent;
     bool _isOutdent;

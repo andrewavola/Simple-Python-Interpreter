@@ -39,6 +39,10 @@ Statements *Parser::statements() {
     continueThroughEOL();
     Token tok = tokenizer.getToken();
     
+    // while(tok.getOutdent())
+    // {
+    //     tok = tokenizer.getToken();
+    // }
     
     // std::cout << tok.getIndentSpace() << " , " << tokenizer.getIndentStack().top();
     while (tok.isName())
@@ -150,8 +154,15 @@ Statements *Parser::statements() {
         {
             std::cout << "Error recognizing keyword or ID...";
             exit(1);
-        }   
+        
+        }
+        // while(tok.getOutdent())
+        // {
+
+        //     tok = tokenizer.getToken();
+        // }   
     }
+
     
     tokenizer.ungetToken();
     return stmts;

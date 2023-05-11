@@ -1,32 +1,4 @@
-# This program provide a few simple tests for the second phase of the Python Interpreter.
-
-
-for(i = 2; i < 20; i = i + 1) {
-     sum = 0
-     for(j = 1; j <= i; j = j + 1) {
-         sum = sum + j  # add j to the culumlative sum.
-     }
-     print("The sum of the first ", i, " numbers is ", sum)
-}
-
-
-fib0 = 1   # The first Fibonacci number is either 0 or 1
-fib1 = 1   # The second number is usually 1
-for( i = 1; i < 20; i = i + 1) {
-     print("Fib", i, " = ", fib0)
-     fib0 = fib0 + fib1    # The next Fib
-     fib1 = fib0 - fib1    # The prev Fib
-}
-
-
-print("The following is the a list of the binary digits of decimal number 133, starting with the rightmost digit.") 
-for(v = 133; v > 0; v = v // 2) {
-     print(v % 2)
-}
-
-print("The sum of 2 and 3 is", 2 + 3)
-print("The sum of 2 and 3.5 is", 2 + 3.5)
-print("The sum of 2.5 and 3.5 is", 2.5 + 3.5)
-
-
-
+if 5 > 6:
+     print("hi")
+     if 9 > 2:
+          print("hop;a")

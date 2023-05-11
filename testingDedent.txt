@@ -1,0 +1,4 @@
+if 6 < 7:
+    print("hello")
+    if 7 > 6:
+        print("hi")

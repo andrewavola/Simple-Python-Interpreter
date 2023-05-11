@@ -184,14 +184,15 @@ IfStatement::IfStatement(Statements *ifVec, ExprNode *ifConditional, std::vector
 void IfStatement::evaluate(SymTab &symTab){
     int counter = 0;
     bool wentIntoOtherCond = false;
-    if(cond){
+    if(dynamic_cast<BoolTypeDescriptor*>(cond->evaluate(symTab))->returnVal()){
+        //cond->print();
         wentIntoOtherCond = true;
         ifVec->evaluate(symTab);
     }
     else if(!elifVec.empty())
     {
        while(counter < elifConds.size()){
-            if(elifConds.at(counter)){
+            if(dynamic_cast<BoolTypeDescriptor *>(elifConds.at(counter)->evaluate(symTab))->returnVal()){
                 elifVec.at(counter)->evaluate(symTab);
                 wentIntoOtherCond = true;
                 break;

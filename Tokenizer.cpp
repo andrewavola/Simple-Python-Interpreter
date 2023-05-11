@@ -174,13 +174,31 @@ Token Tokenizer::getToken() {
         exit(1);
     }
 
+    if(inStream.eof())
+    {
+        std::cout<<"hhaishdkl";
+        //exit(1);
+    }
     //std::cout << "c = " << c << std::endl;
+    if(getParsingNewLine() && inStream.eof()) {
+        while(getIndentStack().back() != 0){
+            Token outdentTok;
+            outdentTok.setIsOutdent();
+            outdentTok.setIndentSpace(spaceCounter);
+            _tokens.push_back(outdentTok);
+            getIndentStack().pop_back();
+            
+        }
 
+    }
+    
+    
     Token token;
     
     setParsingNewLine(false);
     if( inStream.eof()) {
-        token.eof() = true;
+         token.eof() = true;
+    
     } else if( c == '\n' ) {  // will not ever be the case unless new-line characters are not supressed.
         token.eol() = true;
         setParsingNewLine(true);

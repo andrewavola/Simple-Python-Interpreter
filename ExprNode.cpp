@@ -372,6 +372,8 @@ TypeDescriptor* InfixExprNode::evaluate(SymTab &symTab) {
         {
             bool returnVal = (dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
                 < dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal());
+
+            //std::cout<< returnVal;
             return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
         }
         else if(bothDouble)

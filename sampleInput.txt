@@ -1,4 +1,0 @@
-if 5 > 6:
-     print("hi")
-     if 9 > 2:
-          print("hop;a")

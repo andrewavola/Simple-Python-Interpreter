@@ -219,6 +219,7 @@ IfStatement *Parser::ifStatement(){
         //Get the indent
         getNextTok = tokenizer.getToken();
         elseStatements = statements();
+        getNextTok = tokenizer.getToken();
         
     }
     tokenizer.ungetToken();

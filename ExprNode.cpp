@@ -30,6 +30,10 @@ TypeDescriptor* InfixExprNode::evaluate(SymTab &symTab) {
     bool lhsDouble = false;
     bool rhsDouble = false;
     bool isNotOp = false;
+    bool intAndBool = false;
+    bool rhsBool = false;
+    bool doubleAndBool = false;
+
     TypeDescriptor *lValue;
     TypeDescriptor *rValue;
     // Evaluates an infix expression using a post-order traversal of the expression tree.
@@ -69,7 +73,28 @@ TypeDescriptor* InfixExprNode::evaluate(SymTab &symTab) {
         bothStrings = true;
     else if(lValue->getType() == TypeDescriptor::BOOL && rValue->getType() == TypeDescriptor::BOOL)
         boolVals = true;
-    
+    else if(lValue->getType() == TypeDescriptor::BOOL && rValue->getType() == TypeDescriptor::INTEGER)
+        intAndBool = true;
+    else if(lValue->getType() == TypeDescriptor::INTEGER && rValue->getType() == TypeDescriptor::BOOL)
+    {
+        intAndBool = true;
+        rhsBool = true;
+    }
+    else if(lValue->getType() == TypeDescriptor::BOOL && rValue->getType() == TypeDescriptor::INTEGER)
+    {
+        intAndBool = true;
+    }
+    else if(lValue->getType() == TypeDescriptor::DOUBLE && rValue->getType() == TypeDescriptor::BOOL)
+    {
+        doubleAndBool = true;
+        rhsBool = true;
+    }
+    else if(lValue->getType() == TypeDescriptor::BOOL && rValue->getType() == TypeDescriptor::DOUBLE)
+    {
+        intAndBool = true;
+    }
+
+
     else
     {
         std::cout << "Incompatible types for operations\n";
@@ -533,15 +558,119 @@ TypeDescriptor* InfixExprNode::evaluate(SymTab &symTab) {
                 && dynamic_cast<BoolTypeDescriptor *>(rValue)->returnVal();
             return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
         }
-          else{
+        else if (intAndBool){
+            if (rhsBool)
+            {
+                bool returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    && dynamic_cast<BoolTypeDescriptor *>(rValue)->returnVal();
+
+                return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            else{
+                bool returnVal = dynamic_cast<BoolTypeDescriptor *>(lValue)->returnVal()
+                    && dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+
+                return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            
+        }
+        else if (doubleAndBool){
+            if (rhsBool)
+            {
+                bool returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    && dynamic_cast<BoolTypeDescriptor *>(rValue)->returnVal();
+
+                return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            else{
+                bool returnVal = dynamic_cast<BoolTypeDescriptor *>(lValue)->returnVal()
+                    && dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+
+                return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            
+        }
+        else{
             // std::cout <<  dynamic_cast<IntegerTypeDescriptor*>(lValue)->getType();
             // std::cout << ", ";
             // std::cout << dynamic_cast<IntegerTypeDescriptor*>(rValue)->getType();
             std::cout << "Error performing AND operator with inputed values\n";
             exit(1);
         }
+        
     }
-    
+    else if(token().isOrOp()){
+        if(bothInt)
+        {
+            bool returnVal = (dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal() 
+                || dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(bothDouble)
+        {
+            bool returnVal = (dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                || dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal());
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if(intAndDouble)
+        {
+            if(lhsDouble)
+            {
+                bool returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    || dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            else{
+                bool returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    || dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+        }
+        else if(boolVals){
+            bool returnVal = dynamic_cast<BoolTypeDescriptor *>(lValue)->returnVal()
+                || dynamic_cast<BoolTypeDescriptor *>(rValue)->returnVal();
+            return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+        }
+        else if (intAndBool){
+            if (rhsBool)
+            {
+                bool returnVal = dynamic_cast<IntegerTypeDescriptor *>(lValue)->returnVal()
+                    or dynamic_cast<BoolTypeDescriptor *>(rValue)->returnVal();
+
+                return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            else{
+                bool returnVal = dynamic_cast<BoolTypeDescriptor *>(lValue)->returnVal()
+                    or dynamic_cast<IntegerTypeDescriptor *>(rValue)->returnVal();
+
+                return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            
+        }
+        else if (doubleAndBool){
+            if (rhsBool)
+            {
+                bool returnVal = dynamic_cast<DoubleTypeDescriptor *>(lValue)->returnVal()
+                    or dynamic_cast<BoolTypeDescriptor *>(rValue)->returnVal();
+
+                return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            else{
+                bool returnVal = dynamic_cast<BoolTypeDescriptor *>(lValue)->returnVal()
+                    or dynamic_cast<DoubleTypeDescriptor *>(rValue)->returnVal();
+
+                return new BoolTypeDescriptor(returnVal, TypeDescriptor::BOOL);
+            }
+            
+        }
+          else{
+            // std::cout <<  dynamic_cast<IntegerTypeDescriptor*>(lValue)->getType();
+            // std::cout << ", ";
+            // std::cout << dynamic_cast<IntegerTypeDescriptor*>(rValue)->getType();
+            std::cout << "Error performing OR operator with inputed values\n";
+            exit(1);
+        }
+    }
     //Error check
     else {
         std::cout << "InfixExprNode::evaluate: don't know how to evaluate this operator\n";

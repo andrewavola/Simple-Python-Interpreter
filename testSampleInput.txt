@@ -1,5 +1,7 @@
 # This program provide a few simple tests for the third phase of the Python Interpreter.
 
+for p in range(2):
+    print(p)
 
 for i in range(2, 20):
      sum = 0
@@ -16,7 +18,7 @@ for x in range (1, 20, 1):
      fib0 = fib0 + fib1    # The next Fib
      fib1 = fib0 - fib1    # The prev Fib
 
-print("The following is the a list of the binary digits") 
+print("The following is the a list of the binary digits") #NOT equal to 133 in binary
 for v in range(133, 0, -1):
     v = v // 2
     print(v % 2)
@@ -28,15 +30,21 @@ print("The sum of 2.5 and 3.5 is", 2.5 + 3.5)
 
 if 7 < 5 :
     print("first IF")
-elif 14 > 10 :
+elif 14 > 10 and fib0 > 0 :
     print("first else if")
-    if 3 > 2 :
+    if 3 < 2 or fib1 < fib0:
         print("inside else if body")
     else :
         print("else body")
 
+
+if not not v:
+    print("Negatation Negatation of V")
+
 if 5 > 10:
-    print("5 is KESS 10")
+    print("5 is GREATER than 10")
 else:
-    print("5 NOT LESS")
+    print("5 NOT GREATER than 10")
+
+a = 2
 

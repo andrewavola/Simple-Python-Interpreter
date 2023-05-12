@@ -174,12 +174,6 @@ Token Tokenizer::getToken() {
         exit(1);
     }
 
-    if(inStream.eof())
-    {
-        std::cout<<"hhaishdkl";
-        //exit(1);
-    }
-    //std::cout << "c = " << c << std::endl;
     if(getParsingNewLine() && inStream.eof()) {
         while(getIndentStack().back() != 0){
             Token outdentTok;

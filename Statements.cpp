@@ -184,6 +184,7 @@ IfStatement::IfStatement(Statements *ifVec, ExprNode *ifConditional, std::vector
 void IfStatement::evaluate(SymTab &symTab){
     int counter = 0;
     bool wentIntoOtherCond = false;
+    //std::cout<< "hi ============================================================================== \n";
     if(dynamic_cast<BoolTypeDescriptor*>(cond->evaluate(symTab))->returnVal()){
         //cond->print();
         wentIntoOtherCond = true;
@@ -191,17 +192,20 @@ void IfStatement::evaluate(SymTab &symTab){
     }
     else if(!elifVec.empty())
     {
+       
        while(counter < elifConds.size()){
             if(dynamic_cast<BoolTypeDescriptor *>(elifConds.at(counter)->evaluate(symTab))->returnVal()){
                 elifVec.at(counter)->evaluate(symTab);
                 wentIntoOtherCond = true;
                 break;
             }
+            counter++;
        }
     }
     if(!wentIntoOtherCond)
         if(!(elseVec == nullptr))
             elseVec->evaluate(symTab);
+    //std::cout << "\n DONE \n \n";
 }
 
 
@@ -212,6 +216,7 @@ void IfStatement::print(){
     returnCondition()->print();
     std::cout << " : \n";
     ifVec->print();
+    std::cout << "\n";
     if(!elifConds.empty()){
         while(counter < elifConds.size()){
             std::cout << "elif ";
@@ -221,10 +226,11 @@ void IfStatement::print(){
             counter++;
         }    
     }
-    
+    std::cout << "\n";
     if(elseVec != nullptr){
         std::cout << "else :\n";
         elseVec->print();
+        std::cout << "\n";
     }
         
 
